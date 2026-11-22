@@ -287,8 +287,8 @@ func (c *Client) LogoutPasswordSession(ctx context.Context, input PasswordTokenI
 }
 
 // SendPasswordEmailCode calls POST /api/app/v1/password/email-code. Authentication: application.
-func (c *Client) SendPasswordEmailCode(ctx context.Context, input EmailCodeInput) (EmailCodeAccepted, error) {
-	var out EmailCodeAccepted
+func (c *Client) SendPasswordEmailCode(ctx context.Context, input EmailCodeInput) (PasswordEmailCodeAccepted, error) {
+	var out PasswordEmailCodeAccepted
 	err := c.request(ctx, "POST", "/api/app/v1/password/email-code", url.Values(nil), input, &out, "application", []int{202})
 	return out, err
 }

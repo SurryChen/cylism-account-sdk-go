@@ -33,17 +33,26 @@ type Config struct {
 	ClientID     string
 	ClientSecret string
 	HTTPClient   *http.Client
+	// MaxResponseBytes bounds every response, including OIDC discovery, JWKS,
+	// tokens and userinfo. Zero uses 2 MiB; negative values are invalid.
+	MaxResponseBytes int64
+	// Optional absolute URLs, restricted to the BaseURL origin. Explicit values
+	// take precedence over discovery; absent metadata retains Account defaults.
+	IntrospectionEndpoint string
+	RevocationEndpoint    string
 	// AllowInsecureLoopback allows HTTP only for localhost/loopback development.
 	AllowInsecureLoopback bool
 }
 
 type Client struct {
-	base                   *url.URL
-	http                   *http.Client
-	clientID, clientSecret string
-	allowInsecureLoopback  bool
-	mu                     sync.RWMutex
-	csrf                   map[string]string
+	base                                      *url.URL
+	http                                      *http.Client
+	clientID, clientSecret                    string
+	allowInsecureLoopback                     bool
+	mu                                        sync.RWMutex
+	csrf                                      map[string]string
+	introspectionEndpoint, revocationEndpoint string
+	introspectionOverride, revocationOverride bool
 }
 
 // APIError preserves machine-readable error and tracing metadata. Error() omits
@@ -69,6 +78,21 @@ func New(config Config) (*Client, error) {
 	if config.ClientSecret != "" && config.ClientID == "" {
 		return nil, errors.New("account: ClientSecret requires ClientID")
 	}
+	if config.MaxResponseBytes < 0 {
+		return nil, errors.New("account: MaxResponseBytes must not be negative")
+	}
+	limit := config.MaxResponseBytes
+	if limit == 0 {
+		limit = maxResponseBytes
+	}
+	introspection, err := sameOriginEndpoint(u, config.IntrospectionEndpoint, "/oauth/introspect")
+	if err != nil {
+		return nil, err
+	}
+	revocation, err := sameOriginEndpoint(u, config.RevocationEndpoint, "/oauth/revoke")
+	if err != nil {
+		return nil, err
+	}
 	h := http.Client{Timeout: 15 * time.Second}
 	if config.HTTPClient != nil {
 		h = *config.HTTPClient
@@ -76,11 +100,21 @@ func New(config Config) (*Client, error) {
 			h.Timeout = 15 * time.Second
 		}
 	}
+	transport := h.Transport
+	if transport == nil {
+		transport = http.DefaultTransport
+	}
+	h.Transport = responseLimitTransport{base: transport, limit: limit}
 	h.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
 	// A private jar avoids inheriting another user's cookies from the supplied client.
 	h.Jar, _ = cookiejar.New(nil)
 	u.Path = ""
-	return &Client{base: u, http: &h, clientID: config.ClientID, clientSecret: config.ClientSecret, csrf: map[string]string{}, allowInsecureLoopback: config.AllowInsecureLoopback}, nil
+	return &Client{
+		base: u, http: &h, clientID: config.ClientID, clientSecret: config.ClientSecret,
+		csrf: map[string]string{}, allowInsecureLoopback: config.AllowInsecureLoopback,
+		introspectionEndpoint: introspection, revocationEndpoint: revocation,
+		introspectionOverride: config.IntrospectionEndpoint != "", revocationOverride: config.RevocationEndpoint != "",
+	}, nil
 }
 
 func validateURL(raw string, allowLoopback bool) (*url.URL, error) {
@@ -171,12 +205,9 @@ func (c *Client) request(ctx context.Context, method, path string, query url.Val
 		return fmt.Errorf("account: request failed: %w", safeNetworkError(err))
 	}
 	defer response.Body.Close()
-	data, err := io.ReadAll(io.LimitReader(response.Body, maxResponseBytes+1))
+	data, err := io.ReadAll(response.Body)
 	if err != nil {
 		return fmt.Errorf("%w: read failed", ErrInvalidResponse)
-	}
-	if len(data) > maxResponseBytes {
-		return fmt.Errorf("%w: response too large", ErrInvalidResponse)
 	}
 	accepted := false
 	for _, code := range statuses {
@@ -279,4 +310,34 @@ func (e *APIError) RetryAfterDuration(now time.Time) time.Duration {
 		return date.Sub(now)
 	}
 	return 0
+}
+
+// Bound the transport rather than individual decoders so dependency-owned OIDC
+// requests and error bodies have the same ceiling. Never mutate the caller's client.
+type responseLimitTransport struct {
+	base  http.RoundTripper
+	limit int64
+}
+
+func (t responseLimitTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	res, err := t.base.RoundTrip(req)
+	if err != nil {
+		return nil, err
+	}
+	if res.ContentLength > t.limit {
+		res.Body.Close()
+		return nil, fmt.Errorf("%w: response too large", ErrInvalidResponse)
+	}
+	res.Body = http.MaxBytesReader(nil, res.Body, t.limit)
+	return res, nil
+}
+func sameOriginEndpoint(base *url.URL, raw, fallback string) (string, error) {
+	if raw == "" {
+		return base.Scheme + "://" + base.Host + fallback, nil
+	}
+	u, err := validateURL(raw, base.Scheme == "http")
+	if err != nil || u.Scheme != base.Scheme || u.Host != base.Host {
+		return "", errors.New("account: OAuth endpoint must use Account origin without query or fragment")
+	}
+	return u.String(), nil
 }

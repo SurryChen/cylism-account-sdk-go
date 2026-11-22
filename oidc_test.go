@@ -34,7 +34,7 @@ type oidcFixture struct {
 	tx        LoginTransaction
 }
 
-func newOIDCFixture(t *testing.T) *oidcFixture {
+func newOIDCFixture(t *testing.T, options ...func(*Config)) *oidcFixture {
 	t.Helper()
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -82,7 +82,11 @@ func newOIDCFixture(t *testing.T) *oidcFixture {
 	}))
 	t.Cleanup(host.Close)
 	f.issuer = host.URL
-	c, err := New(Config{BaseURL: host.URL, ClientID: "app", ClientSecret: "secret", AllowInsecureLoopback: true})
+	cfg := Config{BaseURL: host.URL, ClientID: "app", ClientSecret: "secret", AllowInsecureLoopback: true}
+	for _, option := range options {
+		option(&cfg)
+	}
+	c, err := New(cfg)
 	if err != nil {
 		t.Fatal(err)
 	}

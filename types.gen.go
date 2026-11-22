@@ -789,6 +789,12 @@ type AuthorizationInfo struct {
 	Scopes []string `json:"scopes"`
 }
 
+type PasswordEmailCodeAccepted struct {
+	Message    string `json:"message"`
+	ExpiresIn  int64  `json:"expires_in"`
+	RetryAfter int64  `json:"retry_after"`
+}
+
 type ErrorEnvelope struct {
 	Error struct {
 		Code    string `json:"code"`

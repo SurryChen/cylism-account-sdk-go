@@ -43,6 +43,26 @@ verifiedSubject 必须来自已验证登录会话；资源类型与操作由后�
 
 下载本 SDK 不需要 Account 私有仓库访问权限或 GitHub 凭证。实际调用 API 仍需要 Account 分配的应用凭据及相应用户或管理员会话。
 
+### 响应限制与 OAuth 端点
+
+Config.MaxResponseBytes 为整个 SDK 设置响应体上限，包含成功/错误 JSON、OIDC discovery、JWKS、令牌、userinfo、introspection 和撤销请求。0 使用默认 2 MiB，负数被拒绝；依赖库可能有更严格的内建限制。注入的 HTTPClient 不会被修改，原有 Transport 和超时继续生效。
+
+~~~go
+client, err := account.New(account.Config{
+    BaseURL: "https://account.example.com",
+    ClientID: clientID,
+    ClientSecret: clientSecret,
+    MaxResponseBytes: 64 << 10,
+    // 可选：同源的绝对 URL；显式配置优先于 discovery。
+    IntrospectionEndpoint: "https://account.example.com/gateway/introspect",
+    RevocationEndpoint: "https://account.example.com/gateway/revoke",
+})
+~~~
+
+同一个 Client 成功执行 DiscoverOIDC 后，Introspect / Revoke 使用 discovery 返回的 introspection_endpoint / revocation_endpoint。未 discovery 或元数据缺省时，分别使用 /oauth/introspect 和 /oauth/revoke。显式配置不被 discovery 覆盖。所有端点都必须与 Account 同源，不允许用户名、查询串和 fragment；重定向继续被阻止。并发读取端点有锁保护，不为每次权限校验重复 discovery。
+
+这支持同源自定义 OAuth 端点，不代表支持带路径的 BaseURL 或任意第三方 OIDC 服务。BaseURL 仍为 Account origin，其他业务 API 路径保持固定。
+
 ### Vue / React 前端
 
 前端调用自己业务后端提供的登录入口、当前用户和业务接口，无需安装 Account 前端 SDK。Go 后端负责 OIDC、令牌刷新、会话和权限校验。
@@ -53,6 +73,7 @@ verifiedSubject 必须来自已验证登录会话；资源类型与操作由后�
 
 - DiscoverOIDC 固定 issuer、client、回调地址与 scope。BeginLogin 支持 Provider:"github" 或 "google"，值为已启用平台的 key。
 - LoginTransaction 含 state/nonce/PKCE verifier，必须存在服务端、绑定发起登录的浏览器，并在回调时原子消费一次。不能相信浏览器提交的 transaction。CompleteLogin 验证有效期、state 和 ID Token。
+- CompleteLogin / Refresh 只接受非空、类型为 Bearer、具有明确且未过期有效期的 access token。TokenSession 在保存轮换结果前及返回前再次检查；无效刷新结果使会话失效，不保存也不重放旧 refresh token。
 - TokenSession 串行化单进程刷新，成功后先持久化新令牌。多实例需要共享存储和刷新锁/事务。无法确认结果时重新登录，不能重放旧 refresh token。
 - Introspect 在线检查撤销、过期、subject 和客户端归属。AuthenticateBearer 建立可信 Principal；RequirePermission("orders:read") 必须位于认证之后。应用角色 admin 不隐含全部权限。
 - OIDC token 与第一方 password bridge 的 opaque token 属于不同会话；后者使用 VerifyPasswordSession / LogoutPasswordSession，不能交给 OIDC introspection。

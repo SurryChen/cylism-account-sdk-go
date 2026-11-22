@@ -63,8 +63,10 @@ func (c *Client) DiscoverOIDC(ctx context.Context, redirectURI string, scopes ..
 		return nil, errors.New("account: OIDC discovery failed")
 	}
 	var metadata struct {
-		JWKS     string `json:"jwks_uri"`
-		Userinfo string `json:"userinfo_endpoint"`
+		JWKS          string `json:"jwks_uri"`
+		Introspection string `json:"introspection_endpoint"`
+		Revocation    string `json:"revocation_endpoint"`
+		Userinfo      string `json:"userinfo_endpoint"`
 	}
 	if provider.Claims(&metadata) != nil {
 		return nil, ErrInvalidResponse
@@ -76,6 +78,14 @@ func (c *Client) DiscoverOIDC(ctx context.Context, redirectURI string, scopes ..
 			return nil, errors.New("account: OIDC endpoints must use Account origin")
 		}
 	}
+	introspection, err := sameOriginEndpoint(c.base, metadata.Introspection, "/oauth/introspect")
+	if err != nil {
+		return nil, err
+	}
+	revocation, err := sameOriginEndpoint(c.base, metadata.Revocation, "/oauth/revoke")
+	if err != nil {
+		return nil, err
+	}
 	endpoint.AuthStyle = oauth2.AuthStyleInHeader
 	if c.clientSecret == "" {
 		endpoint.AuthStyle = oauth2.AuthStyleInParams
@@ -86,6 +96,14 @@ func (c *Client) DiscoverOIDC(ctx context.Context, redirectURI string, scopes ..
 	if !contains(scopes, "openid") {
 		return nil, errors.New("account: openid scope required")
 	}
+	c.mu.Lock()
+	if !c.introspectionOverride {
+		c.introspectionEndpoint = introspection
+	}
+	if !c.revocationOverride {
+		c.revocationEndpoint = revocation
+	}
+	c.mu.Unlock()
 	return &OIDC{client: c, provider: provider, oauth: oauth2.Config{ClientID: c.clientID, ClientSecret: c.clientSecret, RedirectURL: redirectURI, Scopes: append([]string{}, scopes...), Endpoint: endpoint}, verifier: provider.Verifier(&oidc.Config{ClientID: c.clientID, SupportedSigningAlgs: []string{"RS256"}})}, nil
 }
 
@@ -131,6 +149,9 @@ func (o *OIDC) CompleteLogin(ctx context.Context, callback url.Values, tx LoginT
 	tokens, err := o.oauth.Exchange(ctx, callback.Get("code"), oauth2.VerifierOption(tx.Verifier))
 	if err != nil {
 		return nil, safeOAuthError(err)
+	}
+	if err := validateAccessToken(tokens); err != nil {
+		return nil, err
 	}
 	raw, _ := tokens.Extra("id_token").(string)
 	profile, err := o.verifyID(ctx, raw, tokens.AccessToken, tx.Nonce, "")
@@ -178,6 +199,9 @@ func (o *OIDC) Refresh(ctx context.Context, current *oauth2.Token, subject strin
 	if err != nil {
 		return nil, safeOAuthError(err)
 	}
+	if err := validateAccessToken(token); err != nil {
+		return nil, err
+	}
 	if token.AccessToken == "" || token.RefreshToken == "" || token.RefreshToken == current.RefreshToken {
 		return nil, errors.New("account: refresh rotation missing")
 	}
@@ -212,7 +236,11 @@ func (s *TokenSession) Token(ctx context.Context, o *OIDC, persist func(context.
 	if s.invalid || s.token == nil || s.subject == "" {
 		return nil, ErrUnauthenticated
 	}
-	if s.token.Expiry.IsZero() || time.Until(s.token.Expiry) < 30*time.Second {
+	if s.token.AccessToken == "" || !strings.EqualFold(s.token.TokenType, "Bearer") || s.token.Expiry.IsZero() {
+		s.invalid = true
+		return nil, ErrUnauthenticated
+	}
+	if time.Until(s.token.Expiry) < 30*time.Second {
 		if persist == nil {
 			return nil, errors.New("account: refresh persistence callback required")
 		}
@@ -221,11 +249,19 @@ func (s *TokenSession) Token(ctx context.Context, o *OIDC, persist func(context.
 			s.invalid = true
 			return nil, err
 		}
+		if err := validateAccessToken(next); err != nil {
+			s.invalid = true
+			return nil, err
+		}
 		if persist(ctx, next) != nil {
 			s.invalid = true
 			return nil, errors.New("account: rotated token persistence failed; re-login required")
 		}
 		s.token = next
+	}
+	if err := validateAccessToken(s.token); err != nil {
+		s.invalid = true
+		return nil, err
 	}
 	copyToken := *s.token
 	return &copyToken, nil
@@ -260,7 +296,10 @@ type Introspection struct {
 
 func (c *Client) Introspect(ctx context.Context, token string) (Introspection, error) {
 	var out Introspection
-	if err := c.oauthForm(ctx, "/oauth/introspect", url.Values{"token": {token}}, &out); err != nil {
+	c.mu.RLock()
+	endpoint := c.introspectionEndpoint
+	c.mu.RUnlock()
+	if err := c.oauthForm(ctx, endpoint, url.Values{"token": {token}}, &out); err != nil {
 		return out, err
 	}
 	if !out.Active {
@@ -279,16 +318,19 @@ func (c *Client) Introspect(ctx context.Context, token string) (Introspection, e
 	return out, nil
 }
 func (c *Client) Revoke(ctx context.Context, token string) error {
-	return c.oauthForm(ctx, "/oauth/revoke", url.Values{"token": {token}}, nil)
+	c.mu.RLock()
+	endpoint := c.revocationEndpoint
+	c.mu.RUnlock()
+	return c.oauthForm(ctx, endpoint, url.Values{"token": {token}}, nil)
 }
-func (c *Client) oauthForm(ctx context.Context, path string, values url.Values, output any) error {
+func (c *Client) oauthForm(ctx context.Context, endpoint string, values url.Values, output any) error {
 	if c.clientID == "" || c.clientSecret == "" {
 		return errors.New("account: confidential credentials required")
 	}
 	if values.Get("token") == "" {
 		return ErrUnauthenticated
 	}
-	req, _ := http.NewRequestWithContext(ctx, "POST", c.base.String()+path, strings.NewReader(values.Encode()))
+	req, _ := http.NewRequestWithContext(ctx, "POST", endpoint, strings.NewReader(values.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.SetBasicAuth(c.clientID, c.clientSecret)
 	h := *c.http
@@ -298,8 +340,8 @@ func (c *Client) oauthForm(ctx context.Context, path string, values url.Values, 
 		return errors.New("account: request failed")
 	}
 	defer res.Body.Close()
-	data, err := io.ReadAll(io.LimitReader(res.Body, maxResponseBytes+1))
-	if err != nil || len(data) > maxResponseBytes {
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
 		return ErrInvalidResponse
 	}
 	if res.StatusCode != 200 {
@@ -358,4 +400,13 @@ func (c *Client) PlatformLoginURL(provider, authorization string) (string, error
 		u.RawQuery = url.Values{"authorization": {authorization}}.Encode()
 	}
 	return u.String(), nil
+}
+
+// oauth2.Token.Valid treats unknown expiry as non-expiring and does not enforce
+// a token type. Account sessions require an explicit, current Bearer token.
+func validateAccessToken(token *oauth2.Token) error {
+	if token == nil || token.AccessToken == "" || !strings.EqualFold(token.TokenType, "Bearer") || token.Expiry.IsZero() || !token.Expiry.After(time.Now()) {
+		return errors.New("account: invalid or expired Bearer access token")
+	}
+	return nil
 }

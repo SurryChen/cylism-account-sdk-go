@@ -643,7 +643,7 @@
       "$ref": "#/components/schemas/EmailCodeInput"
     },
     "response": {
-      "$ref": "#/components/schemas/EmailCodeAccepted"
+      "$ref": "#/components/schemas/PasswordEmailCodeAccepted"
     },
     "query": false,
     "auth": "application",
