@@ -1,0 +1,21 @@
+{
+  "name": "cylism-account-sdk-vue-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 18109",
+    "build": "vue-tsc --noEmit && vite build"
+  },
+  "dependencies": {
+    "@cylism/expressive-vue": "0.1.4",
+    "vue": "3.5.45",
+    "vuetify": "4.3.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.4",
+    "typescript": "~5.8.3",
+    "vite": "^6.4.2",
+    "vue-tsc": "^3.1.0",
+    "sass": "^1.108.2"
+  }
+}

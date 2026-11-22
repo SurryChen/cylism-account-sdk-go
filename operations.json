@@ -1,0 +1,1313 @@
+[
+  {
+    "name": "AdminLogin",
+    "operation": "adminLogin",
+    "method": "POST",
+    "path": "/api/admin/v1/auth/login",
+    "request": {
+      "$ref": "#/components/schemas/AdminLoginInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/AdminLoginResponse"
+    },
+    "query": false,
+    "auth": "origin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "AdminMFA",
+    "operation": "adminMFA",
+    "method": "POST",
+    "path": "/api/admin/v1/auth/mfa",
+    "request": {
+      "$ref": "#/components/schemas/AdminMFAInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/AdminLogin"
+    },
+    "query": false,
+    "auth": "origin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "AdminMe",
+    "operation": "adminMe",
+    "method": "GET",
+    "path": "/api/admin/v1/auth/me",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/AdminMe"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "AdminLogout",
+    "operation": "adminLogout",
+    "method": "POST",
+    "path": "/api/admin/v1/auth/logout",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "AdminVerify",
+    "operation": "adminVerify",
+    "method": "POST",
+    "path": "/api/admin/v1/auth/verify",
+    "request": {
+      "$ref": "#/components/schemas/AdminVerifyInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "AdminMFASetup",
+    "operation": "adminMFASetup",
+    "method": "POST",
+    "path": "/api/admin/v1/auth/mfa/setup",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/MFASetup"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "AdminMFAConfirm",
+    "operation": "adminMFAConfirm",
+    "method": "POST",
+    "path": "/api/admin/v1/auth/mfa/confirm",
+    "request": {
+      "$ref": "#/components/schemas/AdminMFAConfirmInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/MFARecovery"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "UserMe",
+    "operation": "userMe",
+    "method": "GET",
+    "path": "/api/v1/me",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/UserMe"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "UserLogout",
+    "operation": "userLogout",
+    "method": "POST",
+    "path": "/api/v1/me/logout",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "ListApplications",
+    "operation": "listApplications",
+    "method": "GET",
+    "path": "/api/admin/v1/applications",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/ListApplicationsResponse"
+    },
+    "query": true,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "CreateApplication",
+    "operation": "createApplication",
+    "method": "POST",
+    "path": "/api/admin/v1/applications",
+    "request": {
+      "$ref": "#/components/schemas/ApplicationConfiguration"
+    },
+    "response": {
+      "$ref": "#/components/schemas/ApplicationSaved"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "UpdateApplication",
+    "operation": "updateApplication",
+    "method": "PUT",
+    "path": "/api/admin/v1/applications/{id}",
+    "request": {
+      "$ref": "#/components/schemas/ApplicationUpdate"
+    },
+    "response": {
+      "$ref": "#/components/schemas/ApplicationSaved"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "RotateCredential",
+    "operation": "rotateCredential",
+    "method": "POST",
+    "path": "/api/admin/v1/applications/{id}/credentials",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/CredentialRotated"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "ListProviders",
+    "operation": "listProviders",
+    "method": "GET",
+    "path": "/api/admin/v1/providers",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/ListProvidersResponse"
+    },
+    "query": true,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "CreateProvider",
+    "operation": "createProvider",
+    "method": "POST",
+    "path": "/api/admin/v1/providers",
+    "request": {
+      "$ref": "#/components/schemas/ProviderCreate"
+    },
+    "response": {
+      "$ref": "#/components/schemas/Provider"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "UpdateProvider",
+    "operation": "updateProvider",
+    "method": "PUT",
+    "path": "/api/admin/v1/providers/{id}",
+    "request": {
+      "$ref": "#/components/schemas/ProviderConfiguration"
+    },
+    "response": {
+      "$ref": "#/components/schemas/Provider"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "PublicProviders",
+    "operation": "publicProviders",
+    "method": "GET",
+    "path": "/auth/providers",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/PublicProviderList"
+    },
+    "query": false,
+    "auth": "public",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "UserIdentities",
+    "operation": "userIdentities",
+    "method": "GET",
+    "path": "/api/v1/me/identities",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/IdentityList"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "StartPlatformBind",
+    "operation": "startPlatformBind",
+    "method": "POST",
+    "path": "/api/v1/me/identities/{provider}/bind",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/PlatformAction"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "StartPlatformReauth",
+    "operation": "startPlatformReauth",
+    "method": "POST",
+    "path": "/api/v1/me/reauth/{provider}",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/PlatformAction"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "UnbindIdentity",
+    "operation": "unbindIdentity",
+    "method": "DELETE",
+    "path": "/api/v1/me/identities/{id}",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "ListUserSessions",
+    "operation": "listUserSessions",
+    "method": "GET",
+    "path": "/api/v1/me/sessions",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/Sessions"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "RevokeUserSession",
+    "operation": "revokeUserSession",
+    "method": "DELETE",
+    "path": "/api/v1/me/sessions/{id}",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "ListUsers",
+    "operation": "listUsers",
+    "method": "GET",
+    "path": "/api/admin/v1/users",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/ListUsersResponse"
+    },
+    "query": true,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "InviteUser",
+    "operation": "inviteUser",
+    "method": "POST",
+    "path": "/api/admin/v1/users",
+    "request": {
+      "$ref": "#/components/schemas/UserInviteInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/UserInvitation"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200,
+      202
+    ]
+  },
+  {
+    "name": "GetUserDetail",
+    "operation": "getUserDetail",
+    "method": "GET",
+    "path": "/api/admin/v1/users/{id}",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/UserDetail"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "UpdateUser",
+    "operation": "updateUser",
+    "method": "PUT",
+    "path": "/api/admin/v1/users/{id}",
+    "request": {
+      "$ref": "#/components/schemas/UserProfileInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "SetUserStatus",
+    "operation": "setUserStatus",
+    "method": "PUT",
+    "path": "/api/admin/v1/users/{id}/status",
+    "request": {
+      "$ref": "#/components/schemas/UserStatus"
+    },
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "RevokeAllUserSessions",
+    "operation": "revokeAllUserSessions",
+    "method": "DELETE",
+    "path": "/api/admin/v1/users/{id}/sessions",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "ListManagedUserSessions",
+    "operation": "listManagedUserSessions",
+    "method": "GET",
+    "path": "/api/admin/v1/users/{id}/sessions",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/ListManagedUserSessionsResponse"
+    },
+    "query": true,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "GetOverview",
+    "operation": "getOverview",
+    "method": "GET",
+    "path": "/api/admin/v1/overview",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/Overview"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "ListAuditEvents",
+    "operation": "listAuditEvents",
+    "method": "GET",
+    "path": "/api/admin/v1/audit-events",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/ListAuditEventsResponse"
+    },
+    "query": true,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "ListAdministrators",
+    "operation": "listAdministrators",
+    "method": "GET",
+    "path": "/api/admin/v1/administrators",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/ListAdministratorsResponse"
+    },
+    "query": true,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "CreateAdministrator",
+    "operation": "createAdministrator",
+    "method": "POST",
+    "path": "/api/admin/v1/administrators",
+    "request": {
+      "$ref": "#/components/schemas/AdministratorCreate"
+    },
+    "response": {
+      "$ref": "#/components/schemas/AdminUser"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "UpdateAdministrator",
+    "operation": "updateAdministrator",
+    "method": "PUT",
+    "path": "/api/admin/v1/administrators/{id}",
+    "request": {
+      "$ref": "#/components/schemas/AdministratorUpdate"
+    },
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "ResetAdministratorPassword",
+    "operation": "resetAdministratorPassword",
+    "method": "POST",
+    "path": "/api/admin/v1/administrators/{id}/password",
+    "request": {
+      "$ref": "#/components/schemas/AdministratorPasswordReset"
+    },
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "RegisterPasswordUser",
+    "operation": "registerPasswordUser",
+    "method": "POST",
+    "path": "/api/app/v1/password/register",
+    "request": {
+      "$ref": "#/components/schemas/PasswordRegisterInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/PasswordSessionLogin"
+    },
+    "query": false,
+    "auth": "application",
+    "statuses": [
+      201
+    ]
+  },
+  {
+    "name": "LoginPasswordUser",
+    "operation": "loginPasswordUser",
+    "method": "POST",
+    "path": "/api/app/v1/password/login",
+    "request": {
+      "$ref": "#/components/schemas/PasswordLoginInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/PasswordSessionLogin"
+    },
+    "query": false,
+    "auth": "application",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "VerifyPasswordSession",
+    "operation": "verifyPasswordSession",
+    "method": "POST",
+    "path": "/api/app/v1/password/verify",
+    "request": {
+      "$ref": "#/components/schemas/PasswordTokenInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/PasswordSession"
+    },
+    "query": false,
+    "auth": "application",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "LogoutPasswordSession",
+    "operation": "logoutPasswordSession",
+    "method": "POST",
+    "path": "/api/app/v1/password/logout",
+    "request": {
+      "$ref": "#/components/schemas/PasswordTokenInput"
+    },
+    "response": null,
+    "query": false,
+    "auth": "application",
+    "statuses": [
+      204
+    ]
+  },
+  {
+    "name": "SendPasswordEmailCode",
+    "operation": "sendPasswordEmailCode",
+    "method": "POST",
+    "path": "/api/app/v1/password/email-code",
+    "request": {
+      "$ref": "#/components/schemas/EmailCodeInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/EmailCodeAccepted"
+    },
+    "query": false,
+    "auth": "application",
+    "statuses": [
+      202
+    ]
+  },
+  {
+    "name": "ResetUserPassword",
+    "operation": "resetUserPassword",
+    "method": "POST",
+    "path": "/api/app/v1/password/reset",
+    "request": {
+      "$ref": "#/components/schemas/PasswordResetInput"
+    },
+    "response": null,
+    "query": false,
+    "auth": "application",
+    "statuses": [
+      204
+    ]
+  },
+  {
+    "name": "ListNotificationChannels",
+    "operation": "listNotificationChannels",
+    "method": "GET",
+    "path": "/api/admin/v1/notification-channels",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/NotificationChannelList"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "SaveNotificationChannel",
+    "operation": "saveNotificationChannel",
+    "method": "PUT",
+    "path": "/api/admin/v1/notification-channels/{kind}",
+    "request": {
+      "$ref": "#/components/schemas/NotificationChannelWrite"
+    },
+    "response": {
+      "$ref": "#/components/schemas/NotificationChannel"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "TestNotificationChannel",
+    "operation": "testNotificationChannel",
+    "method": "POST",
+    "path": "/api/admin/v1/notification-channels/{kind}/test",
+    "request": {
+      "$ref": "#/components/schemas/NotificationChannelTest"
+    },
+    "response": {
+      "$ref": "#/components/schemas/TestNotificationChannelResponse"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "SendUserAction",
+    "operation": "sendUserAction",
+    "method": "POST",
+    "path": "/api/admin/v1/users/{id}/actions",
+    "request": {
+      "$ref": "#/components/schemas/SendUserActionInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "RemoveUserLoginMethod",
+    "operation": "removeUserLoginMethod",
+    "method": "POST",
+    "path": "/api/admin/v1/users/{id}/login-methods/{method}/remove",
+    "request": {
+      "$ref": "#/components/schemas/RemoveUserLoginMethodInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "CloseUser",
+    "operation": "closeUser",
+    "method": "POST",
+    "path": "/api/admin/v1/users/{id}/close",
+    "request": {
+      "$ref": "#/components/schemas/CloseUserInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "RevokeSingleUserSession",
+    "operation": "revokeSingleUserSession",
+    "method": "DELETE",
+    "path": "/api/admin/v1/users/{id}/sessions/{session}",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "RevokeUserApplicationSessions",
+    "operation": "revokeUserApplicationSessions",
+    "method": "DELETE",
+    "path": "/api/admin/v1/users/{id}/applications/{application}/sessions",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "CancelUserMerge",
+    "operation": "cancelUserMerge",
+    "method": "DELETE",
+    "path": "/api/admin/v1/users/{id}/merges/{merge}",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "ListUserEvents",
+    "operation": "listUserEvents",
+    "method": "GET",
+    "path": "/api/admin/v1/users/{id}/events",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/ListUserEventsResponse"
+    },
+    "query": true,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "RequestUserMerge",
+    "operation": "requestUserMerge",
+    "method": "POST",
+    "path": "/api/admin/v1/user-merges",
+    "request": {
+      "$ref": "#/components/schemas/RequestUserMergeInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/MergeRequestResult"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "AccountActionInspect",
+    "operation": "accountActionInspect",
+    "method": "POST",
+    "path": "/api/account-actions/inspect",
+    "request": {
+      "$ref": "#/components/schemas/AccountActionInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/AccountActionInfo"
+    },
+    "query": false,
+    "auth": "origin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "AccountActionComplete",
+    "operation": "accountActionComplete",
+    "method": "POST",
+    "path": "/api/account-actions/complete",
+    "request": {
+      "$ref": "#/components/schemas/AccountActionInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/AccountActionResult"
+    },
+    "query": false,
+    "auth": "origin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "BrowserEmailConfig",
+    "operation": "browserEmailConfig",
+    "method": "GET",
+    "path": "/auth/email/config",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/BrowserEmailConfig"
+    },
+    "query": false,
+    "auth": "public",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "BrowserEmailCode",
+    "operation": "browserEmailCode",
+    "method": "POST",
+    "path": "/auth/email/email-code",
+    "request": {
+      "$ref": "#/components/schemas/EmailCodeInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/EmailCodeAccepted"
+    },
+    "query": false,
+    "auth": "flow",
+    "statuses": [
+      202
+    ]
+  },
+  {
+    "name": "BrowserEmailLogin",
+    "operation": "browserEmailLogin",
+    "method": "POST",
+    "path": "/auth/email/login",
+    "request": {
+      "$ref": "#/components/schemas/BrowserEmailInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/PlatformAction"
+    },
+    "query": false,
+    "auth": "flow",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "BrowserEmailRegister",
+    "operation": "browserEmailRegister",
+    "method": "POST",
+    "path": "/auth/email/register",
+    "request": {
+      "$ref": "#/components/schemas/BrowserEmailInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/PlatformAction"
+    },
+    "query": false,
+    "auth": "flow",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "BrowserEmailReset",
+    "operation": "browserEmailReset",
+    "method": "POST",
+    "path": "/auth/email/reset",
+    "request": {
+      "$ref": "#/components/schemas/BrowserEmailInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "flow",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "EmailLoginMethod",
+    "operation": "emailLoginMethod",
+    "method": "GET",
+    "path": "/api/admin/v1/login-methods/email",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/EmailLoginMethod"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "EmailCredential",
+    "operation": "emailCredential",
+    "method": "GET",
+    "path": "/api/v1/me/email",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/EmailCredential"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "BindEmailPassword",
+    "operation": "bindEmailPassword",
+    "method": "POST",
+    "path": "/api/v1/me/email",
+    "request": {
+      "$ref": "#/components/schemas/BindEmailPasswordInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "BindEmailCode",
+    "operation": "bindEmailCode",
+    "method": "POST",
+    "path": "/api/v1/me/email/code",
+    "request": {
+      "$ref": "#/components/schemas/BindEmailCodeInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/EmailCodeAccepted"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      202
+    ]
+  },
+  {
+    "name": "ReauthEmailPassword",
+    "operation": "reauthEmailPassword",
+    "method": "POST",
+    "path": "/api/v1/me/email/reauth",
+    "request": {
+      "$ref": "#/components/schemas/ReauthEmailPasswordInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "ApplicationAccess",
+    "operation": "applicationAccess",
+    "method": "GET",
+    "path": "/api/admin/v1/applications/{id}/access",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/AccessConfiguration"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "ApplicationAccessMembers",
+    "operation": "applicationAccessMembers",
+    "method": "GET",
+    "path": "/api/admin/v1/applications/{id}/access/members",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/ApplicationAccessMembersResponse"
+    },
+    "query": true,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "SaveApplicationAccessPolicy",
+    "operation": "saveApplicationAccessPolicy",
+    "method": "PUT",
+    "path": "/api/admin/v1/applications/{id}/access/policy",
+    "request": {
+      "$ref": "#/components/schemas/AccessPolicy"
+    },
+    "response": {
+      "$ref": "#/components/schemas/AccessConfiguration"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "SaveApplicationPermission",
+    "operation": "saveApplicationPermission",
+    "method": "PUT",
+    "path": "/api/admin/v1/applications/{id}/access/permissions/{key}",
+    "request": {
+      "$ref": "#/components/schemas/SaveApplicationPermissionInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/AccessConfiguration"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "SaveApplicationRole",
+    "operation": "saveApplicationRole",
+    "method": "PUT",
+    "path": "/api/admin/v1/applications/{id}/access/roles/{key}",
+    "request": {
+      "$ref": "#/components/schemas/SaveApplicationRoleInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/AccessConfiguration"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "SaveApplicationMember",
+    "operation": "saveApplicationMember",
+    "method": "PUT",
+    "path": "/api/admin/v1/applications/{id}/access/members/{subject}",
+    "request": {
+      "$ref": "#/components/schemas/AccessMemberInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/AccessConfiguration"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "UserApplicationAccess",
+    "operation": "userApplicationAccess",
+    "method": "GET",
+    "path": "/api/admin/v1/users/{id}/access",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/UserApplicationAccessResponse"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "EvaluateAccess",
+    "operation": "evaluateAccess",
+    "method": "POST",
+    "path": "/access/v1/evaluation",
+    "request": {
+      "$ref": "#/components/schemas/AuthZENEvaluation"
+    },
+    "response": {
+      "$ref": "#/components/schemas/AuthZENDecision"
+    },
+    "query": false,
+    "auth": "application",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "EvaluateAccessBatch",
+    "operation": "evaluateAccessBatch",
+    "method": "POST",
+    "path": "/access/v1/evaluations",
+    "request": {
+      "$ref": "#/components/schemas/AuthZENEvaluations"
+    },
+    "response": {
+      "$ref": "#/components/schemas/EvaluateAccessBatchResponse"
+    },
+    "query": false,
+    "auth": "application",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "ApplicationEntitlements",
+    "operation": "applicationEntitlements",
+    "method": "GET",
+    "path": "/api/app/v1/access/users/{subject}",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/AccessEntitlements"
+    },
+    "query": false,
+    "auth": "application",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "HealthLive",
+    "operation": "healthLive",
+    "method": "GET",
+    "path": "/health/live",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/Health"
+    },
+    "query": false,
+    "auth": "public",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "HealthReady",
+    "operation": "healthReady",
+    "method": "GET",
+    "path": "/health/ready",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/Health"
+    },
+    "query": false,
+    "auth": "public",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "SearchApplicationUsers",
+    "operation": "searchApplicationUsers",
+    "method": "POST",
+    "path": "/api/app/v1/users/search",
+    "request": {
+      "$ref": "#/components/schemas/DirectoryQuery"
+    },
+    "response": {
+      "$ref": "#/components/schemas/DirectoryPage"
+    },
+    "query": false,
+    "auth": "application",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "UserLoginMethods",
+    "operation": "userLoginMethods",
+    "method": "GET",
+    "path": "/api/v1/me/login-methods",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/LoginMethodList"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "AuthorizationInfo",
+    "operation": "authorizationInfo",
+    "method": "GET",
+    "path": "/api/v1/authorizations/{id}",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/AuthorizationInfo"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "ApproveAuthorization",
+    "operation": "approveAuthorization",
+    "method": "POST",
+    "path": "/api/v1/authorizations/{id}/approve",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/PlatformAction"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "DenyAuthorization",
+    "operation": "denyAuthorization",
+    "method": "POST",
+    "path": "/api/v1/authorizations/{id}/deny",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/PlatformAction"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      200
+    ]
+  }
+]

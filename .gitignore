@@ -1,0 +1,7 @@
+examples/vue/node_modules/
+examples/vue/dist/
+.env
+.env.*
+!.env.example
+*.test
+.DS_Store
