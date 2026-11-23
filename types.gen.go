@@ -697,6 +697,8 @@ type AccessEntitlements struct {
 	Status          string                `json:"status"`
 	Roles           []string              `json:"roles"`
 	Permissions     []EffectivePermission `json:"permissions"`
+	Version         int64                 `json:"version"`
+	ValidUntil      time.Time             `json:"valid_until"`
 }
 
 type AuthZENEntity struct {

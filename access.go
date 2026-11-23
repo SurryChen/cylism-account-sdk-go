@@ -5,7 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"regexp"
 	"strings"
+	"time"
+	"unicode/utf8"
 )
 
 // Can uses the trusted session subject, not user-supplied identity. Resource/action
@@ -14,6 +17,37 @@ func (c *Client) Can(ctx context.Context, subject, resource, action string) (boo
 	return c.CanResource(ctx, subject, resource, "*", action)
 }
 func (c *Client) CanResource(ctx context.Context, subject, resource, id, action string) (bool, error) {
+	if !validAccessText(subject, 128) || !validAccessText(resource, 64) || !validAccessText(id, 512) || !validAccessText(action, 64) || !permissionKey.MatchString(resource+":"+action) {
+		return false, errors.New("account: invalid permission request")
+	}
+	if c.cache.config.Disabled {
+		return c.CanResourceOnline(ctx, subject, resource, id, action)
+	}
+	permissions, err := c.ApplicationEntitlements(ctx, subject)
+	if err != nil {
+		var api *APIError
+		if errors.As(err, &api) && api.StatusCode == 403 && api.Code == "application_access_denied" {
+			return false, nil
+		}
+		return false, err
+	}
+	return permissions.HasPermission(resource + ":" + action), nil
+}
+
+var permissionKey = regexp.MustCompile(`^[a-z][a-z0-9_.-]*:[a-z][a-z0-9_.-]*$`)
+
+func validAccessText(s string, limit int) bool {
+	return strings.TrimSpace(s) != "" && utf8.ValidString(s) && utf8.RuneCountInString(s) <= limit
+}
+
+// CanOnline bypasses the permission cache for operations needing immediate checks.
+func (c *Client) CanOnline(ctx context.Context, subject, resource, action string) (bool, error) {
+	return c.CanResourceOnline(ctx, subject, resource, "*", action)
+}
+
+func (c *Client) CanResourceOnline(ctx context.Context, subject, resource, id, action string) (bool, error) {
+	c.cache.forget(cacheKey{"permissions", subject})
+	defer c.cache.forget(cacheKey{"permissions", subject})
 	result, err := c.EvaluateAccess(ctx, AuthZENEvaluation{Subject: AuthZENEntity{Type: "user", ID: subject}, Resource: AuthZENEntity{Type: resource, ID: id}, Action: AuthZENAction{Name: action}})
 	if err != nil {
 		return false, err
@@ -24,12 +58,13 @@ func (c *Client) CanResource(ctx context.Context, subject, resource, id, action 
 	return *result.Decision, nil
 }
 func (e AccessEntitlements) HasRole(role string) bool {
-	return e.Status == "active" && contains(e.Roles, role)
+	return e.Status == "active" && (e.ValidUntil.IsZero() || time.Now().Before(e.ValidUntil)) && contains(e.Roles, role)
 }
 
-// HasPermission operates on a snapshot for display. Use Can for online checks.
+// HasPermission checks a snapshot. Can enforces cache validity; CanOnline always
+// asks Account. Do not retain a snapshot beyond its ValidUntil.
 func (e AccessEntitlements) HasPermission(key string) bool {
-	if e.Status != "active" {
+	if e.Status != "active" || (!e.ValidUntil.IsZero() && !time.Now().Before(e.ValidUntil)) {
 		return false
 	}
 	for _, p := range e.Permissions {

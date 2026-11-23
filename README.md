@@ -75,9 +75,42 @@ client, err := account.New(account.Config{
 - LoginTransaction 含 state/nonce/PKCE verifier，必须存在服务端、绑定发起登录的浏览器，并在回调时原子消费一次。不能相信浏览器提交的 transaction。CompleteLogin 验证有效期、state 和 ID Token。
 - CompleteLogin / Refresh 只接受非空、类型为 Bearer、具有明确且未过期有效期的 access token。TokenSession 在保存轮换结果前及返回前再次检查；无效刷新结果使会话失效，不保存也不重放旧 refresh token。
 - TokenSession 串行化单进程刷新，成功后先持久化新令牌。多实例需要共享存储和刷新锁/事务。无法确认结果时重新登录，不能重放旧 refresh token。
-- Introspect 在线检查撤销、过期、subject 和客户端归属。AuthenticateBearer 建立可信 Principal；RequirePermission("orders:read") 必须位于认证之后。应用角色 admin 不隐含全部权限。
+- Introspect 首次在线检查撤销、过期、subject 和客户端归属，后续默认使用有效缓存，由后台刷新。AuthenticateBearer 建立可信 Principal；RequirePermission("orders:read") 必须位于认证之后。应用角色 admin 不隐含全部权限。
 - OIDC token 与第一方 password bridge 的 opaque token 属于不同会话；后者使用 VerifyPasswordSession / LogoutPasswordSession，不能交给 OIDC introspection。
-- 没有跨请求 allow 缓存。缺失 decision、批量结果不完整、网络/服务错误均不放行。离线 JWT 存在最长五分钟撤销延迟，本版中间件使用在线检查。
+- 标准鉴权默认缓存身份和权限，后台定时刷新；权限撤销、封禁和会话撤销最多延迟一个缓存有效期。缺失 decision、批量结果不完整、没有有效缓存时的网络/服务错误均不放行。
+
+### 默认缓存与后台刷新
+
+复用一个服务级 Client。Can / CanResource / RequirePermission 使用用户最终权限快照；Introspect / AuthenticateBearer 缓存 OIDC 认证结果；VerifyPasswordSession 缓存密码桥接会话。首次访问各自查询一次 Account，后续有效缓存命中不发送请求。后台按单个用户或 token 查询，无需业务请求触发，不调用 GitHub/Google，也不自动刷新登录令牌。
+
+~~~go
+client, err := account.New(account.Config{
+    BaseURL: "https://account.example.com",
+    ClientID: clientID,
+    ClientSecret: clientSecret,
+    // 零值即以下默认配置；通常可以省略。
+    Cache: account.CacheConfig{
+        TTL: time.Minute,
+        RefreshInterval: 30 * time.Second,
+        IdleTimeout: 5 * time.Minute,
+        MaxEntries: 10000,
+        RefreshConcurrency: 4,
+    },
+})
+if err != nil { return err }
+defer client.Close() // 服务关闭时停止调度并取消未完成的缓存查询
+~~~
+
+- TTL 从查询开始计时，不能超过 60 秒；权限响应的 valid_until、token 的 exp 或密码会话到期时间会进一步缩短期限。RefreshInterval 必须小于 TTL；后台提前随机错峰刷新。权限快照返回 version 与 valid_until；版本用于诊断，SDK 每次刷新都读取状态和权限，不能只凭版本不变沿用授权。
+- 身份和权限条目分别记录最近调用时间。后台刷新不会更新该时间；默认空闲五分钟后清理条目并停止轮询，回来后重新加载。一个用户的不同 token 分别认证，权限按用户共享。每个 Client 自带隔离缓存，多进程各自刷新；容量包含认证和权限条目，满额淘汰最久未使用条目。
+- 同一条目的并发查询合并，后台与前台查询共享并发限制。单个请求取消只取消自身等待；共享查询仍受 HTTPClient 超时及 Close 控制。容量耗尽或关闭中的调用会返回错误。
+- 刷新失败不延长旧授权；尚未过期的快照可以继续使用，过期后必须成功查询才能放行。明确的身份失效或权限拒绝立即清除旧授权。成功的 SDK 写操作和 Revoke 清理此 Client 的缓存；其他 Client、实例、管理后台的变更由后台刷新或硬过期发现。
+- ApplicationEntitlements 返回副本，HasPermission / HasRole 检查其有效期。不要自行无限保存快照。权限判断适用于当前 resource:action 并集模型；数据所有权与租户约束由业务后端处理。
+- 后台轮询仍受 Account 的接口限流约束；单实例活跃用户增加时须结合 Account 容量、IP 限额和刷新间隔评估。缓存容量不表示服务端允许同等数量用户同时轮询。
+
+需要即时验证时，显式调用 CanOnline / CanResourceOnline、IntrospectOnline、VerifyPasswordSessionOnline 或 ApplicationEntitlementsOnline。EvaluateAccess / EvaluateAccessBatch 保持原始在线协议行为。敏感操作必须同时考虑身份和权限的新鲜度。Cache.Disabled=true 可整体切回在线模式。
+
+升级顺序：先部署增加权限快照 version / valid_until 的 Account，再更新 SDK。新版 SDK 拒绝缺少有效期限的旧快照，避免静默使用没有服务端期限的授权。缓存模式改变了此前每次请求立即查撤销的语义，需按业务可接受的撤销延迟配置。
 
 ## 管理 API
 

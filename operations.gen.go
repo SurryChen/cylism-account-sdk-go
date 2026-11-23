@@ -273,11 +273,9 @@ func (c *Client) LoginPasswordUser(ctx context.Context, input PasswordLoginInput
 	return out, err
 }
 
-// VerifyPasswordSession calls POST /api/app/v1/password/verify. Authentication: application.
+// VerifyPasswordSession uses the default cache with background refresh.
 func (c *Client) VerifyPasswordSession(ctx context.Context, input PasswordTokenInput) (PasswordSession, error) {
-	var out PasswordSession
-	err := c.request(ctx, "POST", "/api/app/v1/password/verify", url.Values(nil), input, &out, "application", []int{200})
-	return out, err
+	return c.verifyPasswordSession(ctx, input)
 }
 
 // LogoutPasswordSession calls POST /api/app/v1/password/logout. Authentication: application.
@@ -523,11 +521,9 @@ func (c *Client) EvaluateAccessBatch(ctx context.Context, input AuthZENEvaluatio
 	return out, err
 }
 
-// ApplicationEntitlements calls GET /api/app/v1/access/users/{subject}. Authentication: application.
+// ApplicationEntitlements uses the default cache with background refresh.
 func (c *Client) ApplicationEntitlements(ctx context.Context, subject string) (AccessEntitlements, error) {
-	var out AccessEntitlements
-	err := c.request(ctx, "GET", "/api/app/v1/access/users/"+escapeSegment(subject)+"", url.Values(nil), nil, &out, "application", []int{200})
-	return out, err
+	return c.applicationEntitlements(ctx, subject)
 }
 
 // HealthLive calls GET /health/live. Authentication: public.

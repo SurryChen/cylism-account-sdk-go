@@ -24,6 +24,7 @@ func testClient(t *testing.T, handler http.HandlerFunc) *Client {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Cleanup(func() { _ = c.Close() })
 	return c
 }
 func TestConfigRejectsUnsafeOrigins(t *testing.T) {
@@ -81,7 +82,7 @@ func TestCredentialAndCookieBoundaries(t *testing.T) {
 	if _, err := c.UserLogout(ctx); err == nil {
 		t.Fatal("admin CSRF reused for user")
 	}
-	allowed, err := c.Can(ctx, "subject", "orders", "read")
+	allowed, err := c.CanOnline(ctx, "subject", "orders", "read")
 	if err != nil || !allowed {
 		t.Fatal(allowed, err)
 	}
@@ -119,7 +120,7 @@ func TestErrorsAndInvalidDecisions(t *testing.T) {
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			c := testClient(t, func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(test.status); fmt.Fprint(w, test.body) })
-			allowed, err := c.Can(context.Background(), "user", "orders", "read")
+			allowed, err := c.CanOnline(context.Background(), "user", "orders", "read")
 			if allowed != test.allowed || (err != nil) != test.wantError {
 				t.Fatalf("allowed=%v err=%v", allowed, err)
 			}
@@ -130,7 +131,7 @@ func TestErrorsAndInvalidDecisions(t *testing.T) {
 		w.WriteHeader(409)
 		fmt.Fprint(w, "{\"error\":{\"code\":\"configuration_conflict\",\"message\":\"private-input\"},\"request_id\":\"trace-1\"}")
 	})
-	_, err := c.Can(context.Background(), "user", "orders", "read")
+	_, err := c.CanOnline(context.Background(), "user", "orders", "read")
 	var api *APIError
 	if !errors.As(err, &api) || api.Code != "configuration_conflict" || api.RequestID != "trace-1" || api.RetryAfterDuration(time.Now()) != time.Minute || strings.Contains(err.Error(), "private-input") {
 		t.Fatal(err)
@@ -196,7 +197,7 @@ func TestPermissionMiddlewareFailsClosed(t *testing.T) {
 		body         string
 		status, want int
 	}{
-		{"{\"decision\":true}", 200, 204}, {"{\"decision\":false}", 200, 403}, {"{}", 200, 503}, {"{\"decision\":true}", 500, 503},
+		{snapshotJSON("trusted-user", "orders:read"), 200, 204}, {snapshotJSON("trusted-user", ""), 200, 403}, {"{}", 200, 503}, {"{}", 500, 503},
 	} {
 		c := testClient(t, func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(test.status); fmt.Fprint(w, test.body) })
 		handler := c.RequirePermission("orders:read")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(204) }))
@@ -264,7 +265,11 @@ func TestAllJSONOperationsHaveWorkingMethods(t *testing.T) {
 				}
 				w.WriteHeader(op.Statuses[0])
 				if op.Statuses[0] != 204 {
-					if strings.HasPrefix(path, "/access/v1/") {
+					if op.Name == "ApplicationEntitlements" {
+						fmt.Fprint(w, snapshotJSON("test-value", "orders:read"))
+					} else if op.Name == "VerifyPasswordSession" {
+						_ = json.NewEncoder(w).Encode(PasswordSession{Subject: "test-value", ExpiresAt: time.Now().Add(time.Hour)})
+					} else if strings.HasPrefix(path, "/access/v1/") {
 						fmt.Fprint(w, "{\"decision\":false}")
 					} else {
 						fmt.Fprint(w, "{}")
@@ -281,6 +286,8 @@ func TestAllJSONOperationsHaveWorkingMethods(t *testing.T) {
 				typ := method.Type().In(i)
 				if typ.Kind() == reflect.String {
 					args = append(args, reflect.ValueOf("test-value"))
+				} else if op.Name == "VerifyPasswordSession" {
+					args = append(args, reflect.ValueOf(PasswordTokenInput{Token: "test-token"}))
 				} else {
 					args = append(args, reflect.Zero(typ))
 				}

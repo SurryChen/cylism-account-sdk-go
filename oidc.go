@@ -295,6 +295,29 @@ type Introspection struct {
 }
 
 func (c *Client) Introspect(ctx context.Context, token string) (Introspection, error) {
+	if token == "" {
+		return Introspection{}, ErrUnauthenticated
+	}
+	value, err := c.cache.get(ctx, tokenCacheKey("oidc", token), func(ctx context.Context) (any, time.Time, error) {
+		out, err := c.introspect(ctx, token)
+		return out, time.Unix(out.ExpiresAt, 0), err
+	})
+	if err != nil {
+		return Introspection{}, err
+	}
+	out := value.(Introspection)
+	out.Audience = append(json.RawMessage(nil), out.Audience...)
+	return out, nil
+}
+
+// IntrospectOnline bypasses cached authentication, including revocation checks.
+func (c *Client) IntrospectOnline(ctx context.Context, token string) (Introspection, error) {
+	c.cache.forget(tokenCacheKey("oidc", token))
+	defer c.cache.forget(tokenCacheKey("oidc", token))
+	return c.introspect(ctx, token)
+}
+
+func (c *Client) introspect(ctx context.Context, token string) (Introspection, error) {
 	var out Introspection
 	c.mu.RLock()
 	endpoint := c.introspectionEndpoint
@@ -321,7 +344,11 @@ func (c *Client) Revoke(ctx context.Context, token string) error {
 	c.mu.RLock()
 	endpoint := c.revocationEndpoint
 	c.mu.RUnlock()
-	return c.oauthForm(ctx, endpoint, url.Values{"token": {token}}, nil)
+	err := c.oauthForm(ctx, endpoint, url.Values{"token": {token}}, nil)
+	if err == nil {
+		c.cache.clear()
+	}
+	return err
 }
 func (c *Client) oauthForm(ctx context.Context, endpoint string, values url.Values, output any) error {
 	if c.clientID == "" || c.clientSecret == "" {

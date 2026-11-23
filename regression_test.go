@@ -231,6 +231,7 @@ func TestDiscoveredOAuthEndpointsAndOverrides(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+			t.Cleanup(func() { _ = c.Close() })
 			if _, err = c.DiscoverOIDC(context.Background(), "http://localhost/callback"); err != nil {
 				t.Fatal(err)
 			}

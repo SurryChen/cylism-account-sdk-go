@@ -90,6 +90,7 @@ func newOIDCFixture(t *testing.T, options ...func(*Config)) *oidcFixture {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Cleanup(func() { _ = c.Close() })
 	f.o, err = c.DiscoverOIDC(context.Background(), "http://localhost:18099/callback", "openid", "profile", "offline_access")
 	if err != nil {
 		t.Fatal(err)

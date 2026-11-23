@@ -48,6 +48,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer client.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	oidc, err := client.DiscoverOIDC(ctx, "http://127.0.0.1:18108/auth/callback", "openid", "profile", "email", "offline_access")
 	cancel()

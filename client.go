@@ -20,9 +20,12 @@ import (
 const maxResponseBytes = 2 << 20
 
 var (
-	ErrInvalidResponse = errors.New("account: invalid response")
-	ErrUnauthenticated = errors.New("account: authentication required")
-	ErrForbidden       = errors.New("account: permission denied")
+	ErrInvalidResponse  = errors.New("account: invalid response")
+	ErrUnauthenticated  = errors.New("account: authentication required")
+	ErrForbidden        = errors.New("account: permission denied")
+	ErrClientClosed     = errors.New("account: client closed")
+	ErrCacheInvalidated = errors.New("account: cache invalidated during lookup; retry authentication")
+	ErrCacheCapacity    = errors.New("account: authentication cache at capacity")
 )
 
 // Config describes a single application and/or a single browser user session.
@@ -42,6 +45,8 @@ type Config struct {
 	RevocationEndpoint    string
 	// AllowInsecureLoopback allows HTTP only for localhost/loopback development.
 	AllowInsecureLoopback bool
+	// Cache defaults to local authentication/permission caching with background refresh.
+	Cache CacheConfig
 }
 
 type Client struct {
@@ -53,6 +58,7 @@ type Client struct {
 	csrf                                      map[string]string
 	introspectionEndpoint, revocationEndpoint string
 	introspectionOverride, revocationOverride bool
+	cache                                     *accessCache
 }
 
 // APIError preserves machine-readable error and tracing metadata. Error() omits
@@ -71,6 +77,10 @@ func (e *APIError) Is(target error) bool {
 }
 
 func New(config Config) (*Client, error) {
+	cacheConfig, err := normalizeCacheConfig(config.Cache)
+	if err != nil {
+		return nil, err
+	}
 	u, err := validateURL(config.BaseURL, config.AllowInsecureLoopback)
 	if err != nil || (u != nil && u.Path != "" && u.Path != "/") {
 		return nil, errors.New("account: BaseURL must be an HTTPS origin (explicit loopback HTTP allowed)")
@@ -114,6 +124,7 @@ func New(config Config) (*Client, error) {
 		csrf: map[string]string{}, allowInsecureLoopback: config.AllowInsecureLoopback,
 		introspectionEndpoint: introspection, revocationEndpoint: revocation,
 		introspectionOverride: config.IntrospectionEndpoint != "", revocationOverride: config.RevocationEndpoint != "",
+		cache: newAccessCache(cacheConfig, h.Timeout),
 	}, nil
 }
 
@@ -228,6 +239,11 @@ func (c *Client) request(ctx context.Context, method, path string, query url.Val
 		return err
 	}
 	c.captureCSRF(path, method, data)
+	// Writes can revoke sessions or change grants. Verification is a read even
+	// though its opaque token is carried in a POST body.
+	if method != "GET" && method != "HEAD" && path != "/api/app/v1/password/verify" && path != "/api/app/v1/users/search" && path != "/access/v1/evaluation" && path != "/access/v1/evaluations" {
+		c.cache.clear()
+	}
 	return nil
 }
 

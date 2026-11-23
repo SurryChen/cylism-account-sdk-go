@@ -22,7 +22,7 @@ export ACCOUNT_CLIENT_ID=你的应用客户端ID
 go run ./examples/bff
 ~~~
 
-打开 http://127.0.0.1:18108 。示例不自动创建用户/应用/权限。登录后在 Account 为该成员角色明确授予 orders:read，再点刷新权限；后端 /api/orders 每次仍在线检查登录和权限。
+打开 http://127.0.0.1:18108 。示例不自动创建用户/应用/权限。登录后在 Account 为该成员角色明确授予 orders:read；后端 /api/orders 每次检查登录和权限，SDK 默认使用最长 60 秒的本地缓存并约每 30 秒后台刷新。页面刷新可能暂时看到尚未过期的旧权限；需要即时判断时使用 SDK 的显式 Online 方法。
 
 前端 npm run dev 的 18109 仅用于界面热更新；完整登录、退出使用 18108。生产改 HTTPS、Secure Cookie、真实回调和配置化 origin。
 
