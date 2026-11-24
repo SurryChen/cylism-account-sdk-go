@@ -1309,5 +1309,52 @@
     "statuses": [
       200
     ]
+  },
+  {
+    "name": "ApplicationPasswordAPI",
+    "operation": "applicationPasswordAPI",
+    "method": "GET",
+    "path": "/api/admin/v1/applications/{id}/password-api",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/ApplicationPasswordAPI"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "SetApplicationPasswordAPI",
+    "operation": "setApplicationPasswordAPI",
+    "method": "PUT",
+    "path": "/api/admin/v1/applications/{id}/password-api",
+    "request": {
+      "$ref": "#/components/schemas/SetApplicationPasswordAPIInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/ApplicationPasswordAPI"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "ApplicationPasswordAPIEvents",
+    "operation": "applicationPasswordAPIEvents",
+    "method": "GET",
+    "path": "/api/admin/v1/applications/{id}/password-api/events",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/ApplicationPasswordAPIEventsResponse"
+    },
+    "query": true,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
   }
 ]

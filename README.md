@@ -4,7 +4,7 @@ SDK 为独立的公开 Go module，要求 Go 1.24 或更高版本。Account 负�
 
 ## 已覆盖范围
 
-Go SDK 提供现有 **82 个 JSON 接口**的类型化方法。完整操作名、HTTP 路径、认证范围和成功状态码见 [operations.json](operations.json)。
+Go SDK 提供现有 **85 个 JSON 接口**的类型化方法。完整操作名、HTTP 路径、认证范围和成功状态码见 [operations.json](operations.json)。
 
 | 功能 | 内容 |
 | --- | --- |
@@ -115,6 +115,8 @@ defer client.Close() // 服务关闭时停止调度并取消未完成的缓存�
 ## 管理 API
 
 管理操作仍要求 Account 管理员 Cookie、Origin 和独立 admin CSRF；权限配置仅限 super_admin，受最近身份验证与 MFA 控制。应用内 admin 无法管理 Account。
+
+已有应用的邮箱密码 API 授权由 ApplicationPasswordAPI / SetApplicationPasswordAPI 管理；ApplicationPasswordAPIEvents 查询该应用授权审计。只有超级管理员可修改，写入显式 Enabled 和读取时的 Version，授权独立于第一方标记和普通应用配置。启用不改变 Client ID/Secret、OIDC 配置、角色或会话；撤销作废密码桥接会话，保留 OIDC 会话。持有应用密钥本身不能调用这些管理接口。
 
 1. 每个人创建独立 Cookie 客户端，不全局共享用户会话。
 2. AdminLogin 可能返回 MFA challenge，再调用 AdminMFA；challenge 不表示登录成功。生产强制 MFA，未完成绑定时只允许相应认证接口。

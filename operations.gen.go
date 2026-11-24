@@ -574,3 +574,24 @@ func (c *Client) DenyAuthorization(ctx context.Context, id string) (PlatformActi
 	err := c.request(ctx, "POST", "/api/v1/authorizations/"+escapeSegment(id)+"/deny", url.Values(nil), nil, &out, "user", []int{200})
 	return out, err
 }
+
+// ApplicationPasswordAPI calls GET /api/admin/v1/applications/{id}/password-api. Authentication: admin.
+func (c *Client) ApplicationPasswordAPI(ctx context.Context, id string) (ApplicationPasswordAPI, error) {
+	var out ApplicationPasswordAPI
+	err := c.request(ctx, "GET", "/api/admin/v1/applications/"+escapeSegment(id)+"/password-api", url.Values(nil), nil, &out, "admin", []int{200})
+	return out, err
+}
+
+// SetApplicationPasswordAPI calls PUT /api/admin/v1/applications/{id}/password-api. Authentication: admin.
+func (c *Client) SetApplicationPasswordAPI(ctx context.Context, id string, input SetApplicationPasswordAPIInput) (ApplicationPasswordAPI, error) {
+	var out ApplicationPasswordAPI
+	err := c.request(ctx, "PUT", "/api/admin/v1/applications/"+escapeSegment(id)+"/password-api", url.Values(nil), input, &out, "admin", []int{200})
+	return out, err
+}
+
+// ApplicationPasswordAPIEvents calls GET /api/admin/v1/applications/{id}/password-api/events. Authentication: admin.
+func (c *Client) ApplicationPasswordAPIEvents(ctx context.Context, id string, query ApplicationPasswordAPIEventsQuery) (ApplicationPasswordAPIEventsResponse, error) {
+	var out ApplicationPasswordAPIEventsResponse
+	err := c.request(ctx, "GET", "/api/admin/v1/applications/"+escapeSegment(id)+"/password-api/events", queryValues(query), nil, &out, "admin", []int{200})
+	return out, err
+}

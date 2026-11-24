@@ -797,6 +797,16 @@ type PasswordEmailCodeAccepted struct {
 	RetryAfter int64  `json:"retry_after"`
 }
 
+type ApplicationPasswordAPI struct {
+	ApplicationID   string     `json:"application_id"`
+	ApplicationName string     `json:"application_name"`
+	ClientID        string     `json:"client_id"`
+	Enabled         bool       `json:"enabled"`
+	Eligible        bool       `json:"eligible"`
+	Version         int64      `json:"version"`
+	EnabledAt       *time.Time `json:"enabled_at"`
+}
+
 type ErrorEnvelope struct {
 	Error struct {
 		Code    string `json:"code"`
@@ -1042,4 +1052,18 @@ type UserApplicationAccessResponse struct {
 type EvaluateAccessBatchResponse struct {
 	Decision    *bool             `json:"decision,omitempty"`
 	Evaluations []AuthZENDecision `json:"evaluations,omitempty"`
+}
+
+type SetApplicationPasswordAPIInput struct {
+	Enabled bool  `json:"enabled"`
+	Version int64 `json:"version"`
+}
+
+type ApplicationPasswordAPIEventsQuery struct {
+	Before *string `json:"before,omitempty"`
+}
+
+type ApplicationPasswordAPIEventsResponse struct {
+	Items      []AuditEvent `json:"items"`
+	NextCursor string       `json:"next_cursor"`
 }

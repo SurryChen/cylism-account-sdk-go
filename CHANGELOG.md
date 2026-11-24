@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add administrator methods to inspect, enable/revoke, and audit the independent password API grant on an existing application. Enabling preserves application credentials and OIDC settings; revoking invalidates only opaque password bridge sessions.
+
 - Make local authentication and permission caches the default for Can, RequirePermission, ApplicationEntitlements, Introspect, AuthenticateBearer and VerifyPasswordSession. Refresh individual active entries in the background (30 seconds), enforce a maximum 60-second lease and expire idle entries after five minutes. Coalesce lookups, bound capacity/concurrency and add Client.Close.
 - Add explicit Online check methods and CacheConfig.Disabled for immediate checks. Successful SDK mutations/revocation invalidate local caches; remote changes propagate within cache validity. Account must be upgraded first to supply permission version/valid_until. Token/session expiration remains a hard bound.
 
