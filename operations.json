@@ -192,6 +192,23 @@
     ]
   },
   {
+    "name": "DeleteApplication",
+    "operation": "deleteApplication",
+    "method": "DELETE",
+    "path": "/api/admin/v1/applications/{id}",
+    "request": {
+      "$ref": "#/components/schemas/DeletionInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/OK"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
     "name": "RotateCredential",
     "operation": "rotateCredential",
     "method": "POST",
@@ -1140,6 +1157,23 @@
     ]
   },
   {
+    "name": "RemoveApplicationMember",
+    "operation": "removeApplicationMember",
+    "method": "DELETE",
+    "path": "/api/admin/v1/applications/{id}/access/members/{subject}",
+    "request": {
+      "$ref": "#/components/schemas/DeletionInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/AccessConfiguration"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
     "name": "UserApplicationAccess",
     "operation": "userApplicationAccess",
     "method": "GET",
@@ -1353,6 +1387,21 @@
     },
     "query": true,
     "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "ListMyApplications",
+    "operation": "listMyApplications",
+    "method": "GET",
+    "path": "/api/v1/me/applications",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/JoinedApplicationsPage"
+    },
+    "query": true,
+    "auth": "user",
     "statuses": [
       200
     ]

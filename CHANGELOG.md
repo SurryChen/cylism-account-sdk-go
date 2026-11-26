@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add DeleteApplication and RemoveApplicationMember with administrator-cookie authentication, explicit revision checks, recent verification and audit. Deleted applications retire credentials/sessions; removed members cannot auto-join again. Requires Account migration 11.
+
+- Add ListMyApplications for the authenticated user's persistent application memberships, roles, status and join time, with numbered pagination and browser-cookie authentication.
+
 - Add administrator methods to inspect, enable/revoke, and audit the independent password API grant on an existing application. Enabling preserves application credentials and OIDC settings; revoking invalidates only opaque password bridge sessions.
 
 - Make local authentication and permission caches the default for Can, RequirePermission, ApplicationEntitlements, Introspect, AuthenticateBearer and VerifyPasswordSession. Refresh individual active entries in the background (30 seconds), enforce a maximum 60-second lease and expire idle entries after five minutes. Coalesce lookups, bound capacity/concurrency and add Client.Close.

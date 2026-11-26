@@ -807,6 +807,34 @@ type ApplicationPasswordAPI struct {
 	EnabledAt       *time.Time `json:"enabled_at"`
 }
 
+type JoinedApplicationRole struct {
+	Key  string `json:"key"`
+	Name string `json:"name"`
+}
+
+type JoinedApplication struct {
+	ApplicationID     string                  `json:"application_id"`
+	ApplicationName   string                  `json:"application_name"`
+	ApplicationStatus string                  `json:"application_status"`
+	Status            string                  `json:"status"`
+	Roles             []JoinedApplicationRole `json:"roles"`
+	JoinedAt          time.Time               `json:"joined_at"`
+}
+
+type JoinedApplicationsPage struct {
+	Items       []JoinedApplication `json:"items"`
+	Page        int64               `json:"page"`
+	PageSize    int64               `json:"page_size"`
+	Total       int64               `json:"total"`
+	TotalPages  int64               `json:"total_pages"`
+	HasNext     bool                `json:"has_next"`
+	HasPrevious bool                `json:"has_previous"`
+}
+
+type DeletionInput struct {
+	Version int64 `json:"version"`
+}
+
 type ErrorEnvelope struct {
 	Error struct {
 		Code    string `json:"code"`
@@ -1066,4 +1094,9 @@ type ApplicationPasswordAPIEventsQuery struct {
 type ApplicationPasswordAPIEventsResponse struct {
 	Items      []AuditEvent `json:"items"`
 	NextCursor string       `json:"next_cursor"`
+}
+
+type ListMyApplicationsQuery struct {
+	Page     *int64 `json:"page,omitempty"`
+	PageSize *int64 `json:"page_size,omitempty"`
 }

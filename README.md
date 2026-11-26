@@ -4,7 +4,7 @@ SDK 为独立的公开 Go module，要求 Go 1.24 或更高版本。Account 负�
 
 ## 已覆盖范围
 
-Go SDK 提供现有 **85 个 JSON 接口**的类型化方法。完整操作名、HTTP 路径、认证范围和成功状态码见 [operations.json](operations.json)。
+Go SDK 提供现有 **88 个 JSON 接口**的类型化方法。完整操作名、HTTP 路径、认证范围和成功状态码见 [operations.json](operations.json)。
 
 | 功能 | 内容 |
 | --- | --- |

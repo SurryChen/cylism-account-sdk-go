@@ -91,6 +91,13 @@ func (c *Client) UpdateApplication(ctx context.Context, id string, input Applica
 	return out, err
 }
 
+// DeleteApplication calls DELETE /api/admin/v1/applications/{id}. Authentication: admin.
+func (c *Client) DeleteApplication(ctx context.Context, id string, input DeletionInput) (OK, error) {
+	var out OK
+	err := c.request(ctx, "DELETE", "/api/admin/v1/applications/"+escapeSegment(id)+"", url.Values(nil), input, &out, "admin", []int{200})
+	return out, err
+}
+
 // RotateCredential calls POST /api/admin/v1/applications/{id}/credentials. Authentication: admin.
 func (c *Client) RotateCredential(ctx context.Context, id string) (CredentialRotated, error) {
 	var out CredentialRotated
@@ -500,6 +507,13 @@ func (c *Client) SaveApplicationMember(ctx context.Context, id string, subject s
 	return out, err
 }
 
+// RemoveApplicationMember calls DELETE /api/admin/v1/applications/{id}/access/members/{subject}. Authentication: admin.
+func (c *Client) RemoveApplicationMember(ctx context.Context, id string, subject string, input DeletionInput) (AccessConfiguration, error) {
+	var out AccessConfiguration
+	err := c.request(ctx, "DELETE", "/api/admin/v1/applications/"+escapeSegment(id)+"/access/members/"+escapeSegment(subject)+"", url.Values(nil), input, &out, "admin", []int{200})
+	return out, err
+}
+
 // UserApplicationAccess calls GET /api/admin/v1/users/{id}/access. Authentication: admin.
 func (c *Client) UserApplicationAccess(ctx context.Context, id string) (UserApplicationAccessResponse, error) {
 	var out UserApplicationAccessResponse
@@ -593,5 +607,12 @@ func (c *Client) SetApplicationPasswordAPI(ctx context.Context, id string, input
 func (c *Client) ApplicationPasswordAPIEvents(ctx context.Context, id string, query ApplicationPasswordAPIEventsQuery) (ApplicationPasswordAPIEventsResponse, error) {
 	var out ApplicationPasswordAPIEventsResponse
 	err := c.request(ctx, "GET", "/api/admin/v1/applications/"+escapeSegment(id)+"/password-api/events", queryValues(query), nil, &out, "admin", []int{200})
+	return out, err
+}
+
+// ListMyApplications calls GET /api/v1/me/applications. Authentication: user.
+func (c *Client) ListMyApplications(ctx context.Context, query ListMyApplicationsQuery) (JoinedApplicationsPage, error) {
+	var out JoinedApplicationsPage
+	err := c.request(ctx, "GET", "/api/v1/me/applications", queryValues(query), nil, &out, "user", []int{200})
 	return out, err
 }
