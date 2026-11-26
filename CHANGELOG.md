@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add application homepage, cached icon and icon refresh configuration, including branding in joined application records. Requires Account migration 13.
+
 - Distinguish application status and membership status in UserApplication; expose joined_at/removed_at, nullable last_auth_at and member status filtering. Current member lists and ListMyApplications hide removed relationships by default. Requires Account migration 12.
 
 - Add DeleteApplication and RemoveApplicationMember with administrator-cookie authentication, explicit revision checks, recent verification and audit. Deleted applications retire credentials/sessions; removed members may rejoin open/legacy apps after a new login with only the ordinary member role. Disabled members remain blocked. Requires Account migrations 11 and 12.

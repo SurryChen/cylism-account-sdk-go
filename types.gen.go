@@ -78,6 +78,9 @@ type ApplicationConfiguration struct {
 	FirstParty      *bool    `json:"first_party,omitempty"`
 	RedirectUris    []string `json:"redirect_uris"`
 	Scopes          []string `json:"scopes"`
+	HomepageURL     *string  `json:"homepage_url,omitempty"`
+	IconSourceURL   *string  `json:"icon_source_url,omitempty"`
+	RefreshIcon     *bool    `json:"refresh_icon,omitempty"`
 }
 
 type ApplicationUpdate struct {
@@ -88,36 +91,47 @@ type ApplicationUpdate struct {
 	FirstParty      *bool    `json:"first_party,omitempty"`
 	RedirectUris    []string `json:"redirect_uris"`
 	Scopes          []string `json:"scopes"`
+	HomepageURL     *string  `json:"homepage_url,omitempty"`
+	IconSourceURL   *string  `json:"icon_source_url,omitempty"`
+	RefreshIcon     *bool    `json:"refresh_icon,omitempty"`
 	Version         int64    `json:"version"`
 }
 
 type Application struct {
-	EmailSenderName string    `json:"email_sender_name"`
-	ID              string    `json:"id"`
-	ClientID        string    `json:"client_id"`
-	Name            string    `json:"name"`
-	ClientType      string    `json:"client_type"`
-	Status          string    `json:"status"`
-	FirstParty      bool      `json:"first_party"`
-	RedirectUris    []string  `json:"redirect_uris"`
-	Scopes          []string  `json:"scopes"`
-	Version         int64     `json:"version"`
-	CreatedAt       time.Time `json:"created_at"`
+	EmailSenderName string     `json:"email_sender_name"`
+	ID              string     `json:"id"`
+	ClientID        string     `json:"client_id"`
+	Name            string     `json:"name"`
+	ClientType      string     `json:"client_type"`
+	Status          string     `json:"status"`
+	FirstParty      bool       `json:"first_party"`
+	RedirectUris    []string   `json:"redirect_uris"`
+	Scopes          []string   `json:"scopes"`
+	Version         int64      `json:"version"`
+	CreatedAt       time.Time  `json:"created_at"`
+	HomepageURL     string     `json:"homepage_url"`
+	IconSourceURL   string     `json:"icon_source_url"`
+	IconURL         string     `json:"icon_url"`
+	IconFetchedAt   *time.Time `json:"icon_fetched_at"`
 }
 
 type ApplicationSaved struct {
-	EmailSenderName string    `json:"email_sender_name"`
-	ID              string    `json:"id"`
-	ClientID        string    `json:"client_id"`
-	Name            string    `json:"name"`
-	ClientType      string    `json:"client_type"`
-	Status          string    `json:"status"`
-	FirstParty      bool      `json:"first_party"`
-	RedirectUris    []string  `json:"redirect_uris"`
-	Scopes          []string  `json:"scopes"`
-	Version         int64     `json:"version"`
-	CreatedAt       time.Time `json:"created_at"`
-	ClientSecret    *string   `json:"client_secret,omitempty"`
+	EmailSenderName string     `json:"email_sender_name"`
+	ID              string     `json:"id"`
+	ClientID        string     `json:"client_id"`
+	Name            string     `json:"name"`
+	ClientType      string     `json:"client_type"`
+	Status          string     `json:"status"`
+	FirstParty      bool       `json:"first_party"`
+	RedirectUris    []string   `json:"redirect_uris"`
+	Scopes          []string   `json:"scopes"`
+	Version         int64      `json:"version"`
+	CreatedAt       time.Time  `json:"created_at"`
+	HomepageURL     string     `json:"homepage_url"`
+	IconSourceURL   string     `json:"icon_source_url"`
+	IconURL         string     `json:"icon_url"`
+	IconFetchedAt   *time.Time `json:"icon_fetched_at"`
+	ClientSecret    *string    `json:"client_secret,omitempty"`
 }
 
 type ApplicationList struct {
@@ -824,6 +838,8 @@ type JoinedApplication struct {
 	Status            string                  `json:"status"`
 	Roles             []JoinedApplicationRole `json:"roles"`
 	JoinedAt          time.Time               `json:"joined_at"`
+	HomepageURL       string                  `json:"homepage_url"`
+	IconURL           string                  `json:"icon_url"`
 }
 
 type JoinedApplicationsPage struct {
