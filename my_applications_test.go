@@ -9,7 +9,7 @@ import (
 )
 
 func TestMyApplicationsUsesUserSessionAndFreshMemberships(t *testing.T) {
-	var removed atomic.Bool
+	var disabled atomic.Bool
 	c := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if r.Header.Get("Authorization") != "" {
@@ -29,8 +29,8 @@ func TestMyApplicationsUsesUserSessionAndFreshMemberships(t *testing.T) {
 				t.Error("wrong list request", r.URL)
 			}
 			status := "active"
-			if removed.Load() {
-				status = "removed"
+			if disabled.Load() {
+				status = "disabled"
 			}
 			_ = json.NewEncoder(w).Encode(map[string]any{
 				"items": []map[string]any{{"application_id": "app-public", "application_name": "Example", "application_status": "active", "status": status, "roles": []map[string]string{{"key": "member", "name": "普通用户"}}, "joined_at": "2026-11-26T00:00:00Z"}},
@@ -49,8 +49,8 @@ func TestMyApplicationsUsesUserSessionAndFreshMemberships(t *testing.T) {
 		t.Fatal(err)
 	}
 	page, pageSize := int64(2), int64(10)
-	for _, status := range []string{"active", "removed"} {
-		removed.Store(status == "removed")
+	for _, status := range []string{"active", "disabled"} {
+		disabled.Store(status == "disabled")
 		out, err := c.ListMyApplications(ctx, ListMyApplicationsQuery{Page: &page, PageSize: &pageSize})
 		if err != nil {
 			t.Fatal(err)

@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- Add DeleteApplication and RemoveApplicationMember with administrator-cookie authentication, explicit revision checks, recent verification and audit. Deleted applications retire credentials/sessions; removed members cannot auto-join again. Requires Account migration 11.
+- Distinguish application status and membership status in UserApplication; expose joined_at/removed_at, nullable last_auth_at and member status filtering. Current member lists and ListMyApplications hide removed relationships by default. Requires Account migration 12.
+
+- Add DeleteApplication and RemoveApplicationMember with administrator-cookie authentication, explicit revision checks, recent verification and audit. Deleted applications retire credentials/sessions; removed members may rejoin open/legacy apps after a new login with only the ordinary member role. Disabled members remain blocked. Requires Account migrations 11 and 12.
 
 - Add ListMyApplications for the authenticated user's persistent application memberships, roles, status and join time, with numbered pagination and browser-cookie authentication.
 

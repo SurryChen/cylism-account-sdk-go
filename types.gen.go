@@ -429,12 +429,15 @@ type LoginMethod struct {
 }
 
 type UserApplication struct {
-	ID             string    `json:"id"`
-	Name           string    `json:"name"`
-	ClientID       string    `json:"client_id"`
-	Status         string    `json:"status"`
-	ActiveSessions int64     `json:"active_sessions"`
-	LastAuthAt     time.Time `json:"last_auth_at"`
+	ID             string     `json:"id"`
+	Name           string     `json:"name"`
+	ClientID       string     `json:"client_id"`
+	Status         string     `json:"status"`
+	ActiveSessions int64      `json:"active_sessions"`
+	LastAuthAt     *time.Time `json:"last_auth_at"`
+	MemberStatus   string     `json:"member_status"`
+	JoinedAt       *time.Time `json:"joined_at"`
+	RemovedAt      *time.Time `json:"removed_at"`
 }
 
 type UserMerge struct {
@@ -684,10 +687,12 @@ type AccessMember struct {
 	Roles                []string              `json:"roles"`
 	DirectPermissions    []string              `json:"direct_permissions"`
 	Subject              string                `json:"subject"`
-	DisplayName          *string               `json:"display_name,omitempty"`
-	AvatarURL            *string               `json:"avatar_url,omitempty"`
+	DisplayName          string                `json:"display_name"`
+	AvatarURL            string                `json:"avatar_url"`
 	EffectivePermissions []EffectivePermission `json:"effective_permissions"`
-	CreatedAt            *time.Time            `json:"created_at,omitempty"`
+	CreatedAt            time.Time             `json:"created_at"`
+	JoinedAt             time.Time             `json:"joined_at"`
+	RemovedAt            *time.Time            `json:"removed_at"`
 }
 
 type AccessEntitlements struct {
@@ -1045,6 +1050,7 @@ type ApplicationAccessMembersQuery struct {
 	Page     *int64  `json:"page,omitempty"`
 	PageSize *int64  `json:"page_size,omitempty"`
 	Q        *string `json:"q,omitempty"`
+	Status   *string `json:"status,omitempty"`
 }
 
 type ApplicationAccessMembersResponse struct {
