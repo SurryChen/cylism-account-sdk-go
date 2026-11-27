@@ -267,6 +267,8 @@ func TestAllJSONOperationsHaveWorkingMethods(t *testing.T) {
 				if op.Statuses[0] != 204 {
 					if op.Name == "ApplicationEntitlements" {
 						fmt.Fprint(w, snapshotJSON("test-value", "orders:read"))
+					} else if op.Name == "VerifyApplicationSession" {
+						_ = json.NewEncoder(w).Encode(ApplicationSessionIdentity{Subject: "test-value", ApplicationID: "app", SessionID: "session", ExpiresAt: time.Now().Add(time.Hour), AbsoluteExpiresAt: time.Now().Add(2 * time.Hour), ValidUntil: time.Now().Add(time.Minute)})
 					} else if op.Name == "VerifyPasswordSession" {
 						_ = json.NewEncoder(w).Encode(PasswordSession{Subject: "test-value", ExpiresAt: time.Now().Add(time.Hour)})
 					} else if strings.HasPrefix(path, "/access/v1/") {
@@ -286,6 +288,8 @@ func TestAllJSONOperationsHaveWorkingMethods(t *testing.T) {
 				typ := method.Type().In(i)
 				if typ.Kind() == reflect.String {
 					args = append(args, reflect.ValueOf("test-value"))
+				} else if op.Name == "VerifyApplicationSession" {
+					args = append(args, reflect.ValueOf(VerifyApplicationSessionInput{Token: strings.Repeat("t", 43)}))
 				} else if op.Name == "VerifyPasswordSession" {
 					args = append(args, reflect.ValueOf(PasswordTokenInput{Token: "test-token"}))
 				} else {

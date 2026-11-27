@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add Account-owned opaque application sessions: standard OIDC login exchange, cached/online verification and logout. Applications can keep only an HttpOnly cookie without storing OAuth refresh tokens or login sessions. Requires Account migration 14.
+
 - Add application homepage, cached icon and icon refresh configuration, including branding in joined application records. Requires Account migration 13.
 
 - Distinguish application status and membership status in UserApplication; expose joined_at/removed_at, nullable last_auth_at and member status filtering. Current member lists and ListMyApplications hide removed relationships by default. Requires Account migration 12.

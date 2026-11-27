@@ -241,7 +241,7 @@ func (c *Client) request(ctx context.Context, method, path string, query url.Val
 	c.captureCSRF(path, method, data)
 	// Writes can revoke sessions or change grants. Verification is a read even
 	// though its opaque token is carried in a POST body.
-	if method != "GET" && method != "HEAD" && path != "/api/app/v1/password/verify" && path != "/api/app/v1/users/search" && path != "/access/v1/evaluation" && path != "/access/v1/evaluations" {
+	if method != "GET" && method != "HEAD" && path != "/api/app/v1/password/verify" && path != "/api/app/v1/sessions/verify" && path != "/api/app/v1/users/search" && path != "/access/v1/evaluation" && path != "/access/v1/evaluations" {
 		c.cache.clear()
 	}
 	return nil

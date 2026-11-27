@@ -856,6 +856,31 @@ type DeletionInput struct {
 	Version int64 `json:"version"`
 }
 
+type ApplicationSessionLogin struct {
+	ApplicationID     string    `json:"application_id"`
+	SessionID         string    `json:"session_id"`
+	Subject           string    `json:"subject"`
+	Name              *string   `json:"name,omitempty"`
+	Email             *string   `json:"email,omitempty"`
+	EmailVerified     bool      `json:"email_verified"`
+	ExpiresAt         time.Time `json:"expires_at"`
+	AbsoluteExpiresAt time.Time `json:"absolute_expires_at"`
+	ValidUntil        time.Time `json:"valid_until"`
+	Token             string    `json:"token"`
+}
+
+type ApplicationSessionIdentity struct {
+	ApplicationID     string    `json:"application_id"`
+	SessionID         string    `json:"session_id"`
+	Subject           string    `json:"subject"`
+	Name              *string   `json:"name,omitempty"`
+	Email             *string   `json:"email,omitempty"`
+	EmailVerified     bool      `json:"email_verified"`
+	ExpiresAt         time.Time `json:"expires_at"`
+	AbsoluteExpiresAt time.Time `json:"absolute_expires_at"`
+	ValidUntil        time.Time `json:"valid_until"`
+}
+
 type ErrorEnvelope struct {
 	Error struct {
 		Code    string `json:"code"`
@@ -1121,4 +1146,16 @@ type ApplicationPasswordAPIEventsResponse struct {
 type ListMyApplicationsQuery struct {
 	Page     *int64 `json:"page,omitempty"`
 	PageSize *int64 `json:"page_size,omitempty"`
+}
+
+type ExchangeApplicationSessionInput struct {
+	AccessToken string `json:"access_token"`
+}
+
+type VerifyApplicationSessionInput struct {
+	Token string `json:"token"`
+}
+
+type LogoutApplicationSessionInput struct {
+	Token string `json:"token"`
 }

@@ -1405,5 +1405,54 @@
     "statuses": [
       200
     ]
+  },
+  {
+    "name": "ExchangeApplicationSession",
+    "operation": "exchangeApplicationSession",
+    "method": "POST",
+    "path": "/api/app/v1/sessions/exchange",
+    "request": {
+      "$ref": "#/components/schemas/ExchangeApplicationSessionInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/ApplicationSessionLogin"
+    },
+    "query": false,
+    "auth": "application",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "VerifyApplicationSession",
+    "operation": "verifyApplicationSession",
+    "method": "POST",
+    "path": "/api/app/v1/sessions/verify",
+    "request": {
+      "$ref": "#/components/schemas/VerifyApplicationSessionInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/ApplicationSessionIdentity"
+    },
+    "query": false,
+    "auth": "application",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "LogoutApplicationSession",
+    "operation": "logoutApplicationSession",
+    "method": "POST",
+    "path": "/api/app/v1/sessions/logout",
+    "request": {
+      "$ref": "#/components/schemas/LogoutApplicationSessionInput"
+    },
+    "response": null,
+    "query": false,
+    "auth": "application",
+    "statuses": [
+      204
+    ]
   }
 ]

@@ -616,3 +616,21 @@ func (c *Client) ListMyApplications(ctx context.Context, query ListMyApplication
 	err := c.request(ctx, "GET", "/api/v1/me/applications", queryValues(query), nil, &out, "user", []int{200})
 	return out, err
 }
+
+// ExchangeApplicationSession calls POST /api/app/v1/sessions/exchange. Authentication: application.
+func (c *Client) ExchangeApplicationSession(ctx context.Context, input ExchangeApplicationSessionInput) (ApplicationSessionLogin, error) {
+	var out ApplicationSessionLogin
+	err := c.request(ctx, "POST", "/api/app/v1/sessions/exchange", url.Values(nil), input, &out, "application", []int{200})
+	return out, err
+}
+
+// VerifyApplicationSession uses the default cache with background refresh.
+func (c *Client) VerifyApplicationSession(ctx context.Context, input VerifyApplicationSessionInput) (ApplicationSessionIdentity, error) {
+	return c.verifyApplicationSession(ctx, input)
+}
+
+// LogoutApplicationSession calls POST /api/app/v1/sessions/logout. Authentication: application.
+func (c *Client) LogoutApplicationSession(ctx context.Context, input LogoutApplicationSessionInput) error {
+	err := c.request(ctx, "POST", "/api/app/v1/sessions/logout", url.Values(nil), input, nil, "application", []int{204})
+	return err
+}
