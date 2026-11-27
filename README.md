@@ -117,8 +117,8 @@ defer client.Close() // 服务关闭时停止调度并取消未完成的缓存�
 希望只保存浏览器 Cookie、无需业务应用维护登录会话库或刷新令牌时，使用 Account 应用会话扩展。普通标准 OIDC 接口和 CompleteLogin / Refresh 保持不变。
 
 1. 服务端 DiscoverOIDC（通常只需 openid/profile/email）与 BeginLogin 发起标准授权码 + PKCE；将 LoginTransaction 加密保存在 HttpOnly、SameSite=Lax 的短期浏览器 Cookie，或现有服务端事务存储中。所有实例共享加密密钥，并验证 Cookie 期限、state 与回调 issuer。授权码由 Account 原子地单次消费，重放不能创建第二个会话。
-2. 回调调用 CompleteApplicationLogin。SDK 先验证标准 OIDC state/nonce/PKCE/ID Token，再用有效 access token 交换 Account 不透明应用会话凭据。只将返回 Token 加密保存到本应用 HttpOnly Cookie；Cookie 最长期限取 AbsoluteExpiresAt。不要保存 OAuth access/refresh token，也不需要自行轮换它们。
-3. 每次请求通过 VerifyApplicationSession 验证 Cookie 中的 Token，用户标识只能取验证结果。默认本地缓存并后台刷新；VerifyApplicationSessionOnline 适用于敏感操作。ValidUntil 限制缓存期限，ExpiresAt 为 Account 当前会话期限，AbsoluteExpiresAt 为不可突破的最长有效期。缓存丢失后重新读取 Account 即可，无须用户重新登录。
+2. 回调调用 CompleteApplicationLogin。SDK 先验证标准 OIDC state/nonce/PKCE/ID Token，再用有效 access token 交换 Account 不透明应用会话凭据。只将返回 Token 加密保存到本应用 HttpOnly Cookie；Cookie 期限取 CookieExpiresAt，旧服务未返回该字段时取 ExpiresAt。不要保存 OAuth access/refresh token，也不需要自行轮换它们。
+3. 每次请求通过 VerifyApplicationSession 验证 Cookie 中的 Token，用户标识只能取验证结果。默认本地缓存并后台刷新；VerifyApplicationSessionOnline 适用于敏感操作。ValidUntil 限制缓存期限，ExpiresAt 为 Account 当前会话期限；AbsoluteExpiresAt 表示策略硬期限，其中 9999 年表示不强制定期登录，不能作为 Cookie 期限。缓存丢失后重新读取 Account 即可，无须用户重新登录。真实用户活跃请求按下文调用 RenewApplicationSession，单纯核验不会保活。
 4. 退出调用 LogoutApplicationSession，Account 撤销同一应用会话并审计，成功后清除浏览器 Cookie。其他实例的 SDK 缓存最多仍有一个缓存有效期的传播延迟；需要即时生效的操作必须在线验证。
 
 密码 API 新签发的 Token 也可使用统一验证/注销接口，但密码来源的会话仍要求现有独立密码 API 授权；不能通过统一接口绕过授权。撤销密码 API 授权只撤销密码桥接来源会话，不影响通过 Account 邮箱页面完成的 OIDC 会话。此能力仅供持有有效凭据的 confidential 服务端应用使用，不将 Client Secret 暴露给浏览器。
