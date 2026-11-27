@@ -222,6 +222,9 @@ func (c *accessCache) startLocked(key cacheKey, e *cacheEntry, background bool) 
 			<-c.slots
 		}
 		until := started.Add(c.config.TTL)
+		if key.kind == "session-activity" {
+			until = expiration
+		}
 		if !expiration.IsZero() && expiration.Before(until) {
 			until = expiration
 		}
@@ -290,7 +293,7 @@ func (c *accessCache) refreshDue(now time.Time) {
 		}
 		// Expired tokens cannot be made live by polling. Permission snapshots
 		// may expire and be fetched again while their user remains active.
-		if e.flight == nil && !now.Before(e.nextRefresh) {
+		if key.kind != "session-activity" && e.flight == nil && !now.Before(e.nextRefresh) {
 			c.startLocked(key, e, true)
 		}
 	}

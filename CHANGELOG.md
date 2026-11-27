@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add explicit activity renewal with bounded single-flight reporting, read-only background verification, recoverable replacement credentials, and dynamic session-policy administration APIs.
+
 - Add Account-owned opaque application sessions: standard OIDC login exchange, cached/online verification and logout. Applications can keep only an HttpOnly cookie without storing OAuth refresh tokens or login sessions. Requires Account migration 14.
 
 - Add application homepage, cached icon and icon refresh configuration, including branding in joined application records. Requires Account migration 13.

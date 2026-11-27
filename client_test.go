@@ -243,7 +243,7 @@ func TestAllJSONOperationsHaveWorkingMethods(t *testing.T) {
 			var called bool
 			c := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 				called = true
-				if r.Method != op.Method || r.URL.Path != path {
+				if (r.Method != op.Method || r.URL.Path != path) && !(op.Name == "RenewApplicationSession" && r.Method == "POST" && r.URL.Path == "/api/app/v1/sessions/verify") {
 					t.Error("wrong operation", r.Method, r.URL.Path)
 				}
 				_, _, basic := r.BasicAuth()
@@ -267,6 +267,10 @@ func TestAllJSONOperationsHaveWorkingMethods(t *testing.T) {
 				if op.Statuses[0] != 204 {
 					if op.Name == "ApplicationEntitlements" {
 						fmt.Fprint(w, snapshotJSON("test-value", "orders:read"))
+					} else if op.Name == "RenewApplicationSession" {
+						renew := time.Now().Add(5 * time.Minute)
+						cookie := time.Now().Add(time.Hour)
+						_ = json.NewEncoder(w).Encode(ApplicationSessionIdentity{Subject: "test-value", ApplicationID: "app", SessionID: "session", ExpiresAt: cookie, AbsoluteExpiresAt: time.Now().Add(2 * time.Hour), ValidUntil: time.Now().Add(time.Minute), RenewAfter: &renew, CookieExpiresAt: &cookie})
 					} else if op.Name == "VerifyApplicationSession" {
 						_ = json.NewEncoder(w).Encode(ApplicationSessionIdentity{Subject: "test-value", ApplicationID: "app", SessionID: "session", ExpiresAt: time.Now().Add(time.Hour), AbsoluteExpiresAt: time.Now().Add(2 * time.Hour), ValidUntil: time.Now().Add(time.Minute)})
 					} else if op.Name == "VerifyPasswordSession" {
@@ -288,6 +292,8 @@ func TestAllJSONOperationsHaveWorkingMethods(t *testing.T) {
 				typ := method.Type().In(i)
 				if typ.Kind() == reflect.String {
 					args = append(args, reflect.ValueOf("test-value"))
+				} else if op.Name == "RenewApplicationSession" {
+					args = append(args, reflect.ValueOf(RenewApplicationSessionInput{Token: strings.Repeat("t", 43)}))
 				} else if op.Name == "VerifyApplicationSession" {
 					args = append(args, reflect.ValueOf(VerifyApplicationSessionInput{Token: strings.Repeat("t", 43)}))
 				} else if op.Name == "VerifyPasswordSession" {

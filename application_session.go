@@ -59,7 +59,7 @@ func (c *Client) fetchApplicationSession(ctx context.Context, input VerifyApplic
 	if err := c.request(ctx, "POST", "/api/app/v1/sessions/verify", url.Values(nil), input, &out, "application", []int{200}); err != nil {
 		return out, err
 	}
-	if out.Subject == "" || out.ApplicationID == "" || out.SessionID == "" || !out.ValidUntil.After(time.Now()) || !out.ExpiresAt.After(time.Now()) || out.ValidUntil.After(out.ExpiresAt) || out.ExpiresAt.After(out.AbsoluteExpiresAt) {
+	if !validApplicationIdentity(out) {
 		return ApplicationSessionIdentity{}, ErrInvalidResponse
 	}
 	return out, nil
@@ -72,6 +72,26 @@ func cloneApplicationSession(out ApplicationSessionIdentity) ApplicationSessionI
 	if out.Name != nil {
 		v := *out.Name
 		out.Name = &v
+	}
+	if out.Token != nil {
+		v := *out.Token
+		out.Token = &v
+	}
+	if out.PolicyVersion != nil {
+		v := *out.PolicyVersion
+		out.PolicyVersion = &v
+	}
+	if out.RenewAfter != nil {
+		v := *out.RenewAfter
+		out.RenewAfter = &v
+	}
+	if out.CookieRenewAfter != nil {
+		v := *out.CookieRenewAfter
+		out.CookieRenewAfter = &v
+	}
+	if out.CookieExpiresAt != nil {
+		v := *out.CookieExpiresAt
+		out.CookieExpiresAt = &v
 	}
 	return out
 }

@@ -857,28 +857,54 @@ type DeletionInput struct {
 }
 
 type ApplicationSessionLogin struct {
-	ApplicationID     string    `json:"application_id"`
-	SessionID         string    `json:"session_id"`
-	Subject           string    `json:"subject"`
-	Name              *string   `json:"name,omitempty"`
-	Email             *string   `json:"email,omitempty"`
-	EmailVerified     bool      `json:"email_verified"`
-	ExpiresAt         time.Time `json:"expires_at"`
-	AbsoluteExpiresAt time.Time `json:"absolute_expires_at"`
-	ValidUntil        time.Time `json:"valid_until"`
-	Token             string    `json:"token"`
+	ApplicationID     string     `json:"application_id"`
+	SessionID         string     `json:"session_id"`
+	Subject           string     `json:"subject"`
+	Name              *string    `json:"name,omitempty"`
+	Email             *string    `json:"email,omitempty"`
+	EmailVerified     bool       `json:"email_verified"`
+	ExpiresAt         time.Time  `json:"expires_at"`
+	AbsoluteExpiresAt time.Time  `json:"absolute_expires_at"`
+	ValidUntil        time.Time  `json:"valid_until"`
+	PolicyVersion     *int64     `json:"policy_version,omitempty"`
+	RenewAfter        *time.Time `json:"renew_after,omitempty"`
+	CookieExpiresAt   *time.Time `json:"cookie_expires_at,omitempty"`
+	Token             string     `json:"token"`
+	CookieRenewAfter  *time.Time `json:"cookie_renew_after,omitempty"`
 }
 
 type ApplicationSessionIdentity struct {
-	ApplicationID     string    `json:"application_id"`
-	SessionID         string    `json:"session_id"`
-	Subject           string    `json:"subject"`
-	Name              *string   `json:"name,omitempty"`
-	Email             *string   `json:"email,omitempty"`
-	EmailVerified     bool      `json:"email_verified"`
-	ExpiresAt         time.Time `json:"expires_at"`
-	AbsoluteExpiresAt time.Time `json:"absolute_expires_at"`
-	ValidUntil        time.Time `json:"valid_until"`
+	ApplicationID     string     `json:"application_id"`
+	SessionID         string     `json:"session_id"`
+	Subject           string     `json:"subject"`
+	Name              *string    `json:"name,omitempty"`
+	Email             *string    `json:"email,omitempty"`
+	EmailVerified     bool       `json:"email_verified"`
+	ExpiresAt         time.Time  `json:"expires_at"`
+	AbsoluteExpiresAt time.Time  `json:"absolute_expires_at"`
+	ValidUntil        time.Time  `json:"valid_until"`
+	PolicyVersion     *int64     `json:"policy_version,omitempty"`
+	RenewAfter        *time.Time `json:"renew_after,omitempty"`
+	CookieExpiresAt   *time.Time `json:"cookie_expires_at,omitempty"`
+	Token             *string    `json:"token,omitempty"`
+	CookieRenewAfter  *time.Time `json:"cookie_renew_after,omitempty"`
+}
+
+type SessionPolicy struct {
+	Scope           string    `json:"scope"`
+	AutoRenew       bool      `json:"auto_renew"`
+	IdleSeconds     int64     `json:"idle_seconds"`
+	MaxSeconds      int64     `json:"max_seconds"`
+	RotationSeconds int64     `json:"rotation_seconds"`
+	ReauthSeconds   int64     `json:"reauth_seconds"`
+	Version         int64     `json:"version"`
+	UpdatedAt       time.Time `json:"updated_at"`
+}
+
+type SessionActivity struct {
+	RenewAfter time.Time `json:"renew_after"`
+	ExpiresAt  time.Time `json:"expires_at"`
+	CSRFToken  string    `json:"csrf_token"`
 }
 
 type ErrorEnvelope struct {
@@ -1158,4 +1184,25 @@ type VerifyApplicationSessionInput struct {
 
 type LogoutApplicationSessionInput struct {
 	Token string `json:"token"`
+}
+
+type RenewApplicationSessionInput struct {
+	Token string `json:"token"`
+}
+
+type UserSessionActivityInput map[string]any
+
+type AdminSessionActivityInput map[string]any
+
+type ListSessionPoliciesResponse struct {
+	Items []SessionPolicy `json:"items"`
+}
+
+type RevokePolicySessionsInput struct {
+	Version int64  `json:"version"`
+	Confirm string `json:"confirm"`
+}
+
+type RevokePolicySessionsResponse struct {
+	Ok bool `json:"ok"`
 }

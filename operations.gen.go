@@ -634,3 +634,43 @@ func (c *Client) LogoutApplicationSession(ctx context.Context, input LogoutAppli
 	err := c.request(ctx, "POST", "/api/app/v1/sessions/logout", url.Values(nil), input, nil, "application", []int{204})
 	return err
 }
+
+// RenewApplicationSession uses the default cache with background refresh.
+func (c *Client) RenewApplicationSession(ctx context.Context, input RenewApplicationSessionInput) (ApplicationSessionIdentity, error) {
+	return c.renewApplicationSession(ctx, input)
+}
+
+// UserSessionActivity calls POST /api/v1/me/activity. Authentication: user.
+func (c *Client) UserSessionActivity(ctx context.Context, input UserSessionActivityInput) (SessionActivity, error) {
+	var out SessionActivity
+	err := c.request(ctx, "POST", "/api/v1/me/activity", url.Values(nil), input, &out, "user", []int{200})
+	return out, err
+}
+
+// AdminSessionActivity calls POST /api/admin/v1/auth/activity. Authentication: admin.
+func (c *Client) AdminSessionActivity(ctx context.Context, input AdminSessionActivityInput) (SessionActivity, error) {
+	var out SessionActivity
+	err := c.request(ctx, "POST", "/api/admin/v1/auth/activity", url.Values(nil), input, &out, "admin", []int{200})
+	return out, err
+}
+
+// ListSessionPolicies calls GET /api/admin/v1/session-policies. Authentication: admin.
+func (c *Client) ListSessionPolicies(ctx context.Context) (ListSessionPoliciesResponse, error) {
+	var out ListSessionPoliciesResponse
+	err := c.request(ctx, "GET", "/api/admin/v1/session-policies", url.Values(nil), nil, &out, "admin", []int{200})
+	return out, err
+}
+
+// SaveSessionPolicy calls PUT /api/admin/v1/session-policies/{scope}. Authentication: admin.
+func (c *Client) SaveSessionPolicy(ctx context.Context, scope string, input SessionPolicy) (SessionPolicy, error) {
+	var out SessionPolicy
+	err := c.request(ctx, "PUT", "/api/admin/v1/session-policies/"+escapeSegment(scope)+"", url.Values(nil), input, &out, "admin", []int{200})
+	return out, err
+}
+
+// RevokePolicySessions calls POST /api/admin/v1/session-policies/{scope}/revoke. Authentication: admin.
+func (c *Client) RevokePolicySessions(ctx context.Context, scope string, input RevokePolicySessionsInput) (RevokePolicySessionsResponse, error) {
+	var out RevokePolicySessionsResponse
+	err := c.request(ctx, "POST", "/api/admin/v1/session-policies/"+escapeSegment(scope)+"/revoke", url.Values(nil), input, &out, "admin", []int{200})
+	return out, err
+}

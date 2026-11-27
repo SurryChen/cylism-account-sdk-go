@@ -4,7 +4,7 @@ SDK 为独立的公开 Go module，要求 Go 1.24 或更高版本。Account 负�
 
 ## 已覆盖范围
 
-Go SDK 提供现有 **91 个 JSON 接口**的类型化方法。完整操作名、HTTP 路径、认证范围和成功状态码见 [operations.json](operations.json)。
+Go SDK 提供现有 **97 个 JSON 接口**的类型化方法。完整操作名、HTTP 路径、认证范围和成功状态码见 [operations.json](operations.json)。
 
 | 功能 | 内容 |
 | --- | --- |
@@ -155,3 +155,27 @@ npm --prefix examples/vue run build
 ## 版本与许可
 
 Go module 使用仓库根标签（如 v0.1.0）发布；接入方固定版本升级。源代码仓库公开不等于授予开源许可。当前保留所有权利，未授予第三方使用、修改或再分发许可，详见 [NOTICE](NOTICE)。需要对外授权时再补充正式许可。
+
+## 动态策略与活跃续期（Account 迁移 15）
+
+Account 管理端的「登录会话」配置普通用户及管理后台的独立策略。默认普通用户 30 天未活跃过期、不强制定期登录、7 天轮换凭据；管理后台默认空闲 30 分钟、最长 8 小时、1 小时轮换。敏感操作复验默认 5 分钟。策略修改版本化且审计，不需要重启；已过期或撤销的会话不会恢复。
+
+VerifyApplicationSession / VerifyApplicationSessionOnline 只检查状态，后台刷新不会延长登录。只有真实用户交互触发的请求才调用 RenewApplicationSession；不要从定时器、SSE 心跳、后台任务或权限轮询调用它。SDK 对同一 token 的并发请求合并，并以服务端 renew_after 限制活跃上报；内存清空/重启后首次重报是安全的。续期回执不作为五分钟授权，SDK 仍独立验证最多 60 秒有效的身份缓存；敏感操作继续在线验证。
+
+~~~go
+identity, err := client.VerifyApplicationSession(ctx, account.VerifyApplicationSessionInput{Token: opaque})
+if err != nil { return err }
+if userInitiated {
+    renewed, err := client.RenewApplicationSession(ctx, account.RenewApplicationSessionInput{Token: opaque})
+    if err != nil { return err }
+    // 若 renewed.Token != nil，替换加密 HttpOnly Cookie 中的不透明凭据。
+    // Cookie 保存期限采用 renewed.CookieExpiresAt；按日或接近到期才续写，
+    // 收到替换凭据时立即写入。不要使用无硬期限的 AbsoluteExpiresAt 作为 Cookie 年限。
+    _ = renewed
+}
+_ = identity
+~~~
+
+Cookie 期限取 cookie_expires_at，身份有效期取 expires_at；absolute_expires_at 为兼容既有类型保留，9999 年表示策略不强制定期登录，并非应签发的 Cookie 期限。轮换先返回同一个待确认凭据，直到后续请求证明新凭据已收到才推进；旧凭据随后有 5 分钟并发宽限。响应丢失可使用旧凭据安全重试，SDK 不把续期请求加入后台刷新。凭据数据库以哈希查询，待确认和短期恢复材料使用 Account 密钥加密保存，不能记录日志。
+
+ListSessionPolicies / SaveSessionPolicy / RevokePolicySessions 是管理员 API，不可由业务应用凭据调用。修改策略和按范围下线均要求超级管理员及近期复验；保存必须使用当前 version。先升级 Account 迁移 15，再更新 SDK 和接入应用；仅升级 SDK 不会自动将后台任务认定为用户活跃。

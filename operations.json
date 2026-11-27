@@ -1454,5 +1454,105 @@
     "statuses": [
       204
     ]
+  },
+  {
+    "name": "RenewApplicationSession",
+    "operation": "renewApplicationSession",
+    "method": "POST",
+    "path": "/api/app/v1/sessions/renew",
+    "request": {
+      "$ref": "#/components/schemas/RenewApplicationSessionInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/ApplicationSessionIdentity"
+    },
+    "query": false,
+    "auth": "application",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "UserSessionActivity",
+    "operation": "userSessionActivity",
+    "method": "POST",
+    "path": "/api/v1/me/activity",
+    "request": {
+      "$ref": "#/components/schemas/UserSessionActivityInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/SessionActivity"
+    },
+    "query": false,
+    "auth": "user",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "AdminSessionActivity",
+    "operation": "adminSessionActivity",
+    "method": "POST",
+    "path": "/api/admin/v1/auth/activity",
+    "request": {
+      "$ref": "#/components/schemas/AdminSessionActivityInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/SessionActivity"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "ListSessionPolicies",
+    "operation": "listSessionPolicies",
+    "method": "GET",
+    "path": "/api/admin/v1/session-policies",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/ListSessionPoliciesResponse"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "SaveSessionPolicy",
+    "operation": "saveSessionPolicy",
+    "method": "PUT",
+    "path": "/api/admin/v1/session-policies/{scope}",
+    "request": {
+      "$ref": "#/components/schemas/SessionPolicy"
+    },
+    "response": {
+      "$ref": "#/components/schemas/SessionPolicy"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "RevokePolicySessions",
+    "operation": "revokePolicySessions",
+    "method": "POST",
+    "path": "/api/admin/v1/session-policies/{scope}/revoke",
+    "request": {
+      "$ref": "#/components/schemas/RevokePolicySessionsInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/RevokePolicySessionsResponse"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
   }
 ]
