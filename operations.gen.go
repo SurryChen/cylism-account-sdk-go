@@ -674,3 +674,24 @@ func (c *Client) RevokePolicySessions(ctx context.Context, scope string, input R
 	err := c.request(ctx, "POST", "/api/admin/v1/session-policies/"+escapeSegment(scope)+"/revoke", url.Values(nil), input, &out, "admin", []int{200})
 	return out, err
 }
+
+// GetApplicationSessionPolicy calls GET /api/admin/v1/applications/{id}/session-policy. Authentication: admin.
+func (c *Client) GetApplicationSessionPolicy(ctx context.Context, id string) (ApplicationSessionPolicy, error) {
+	var out ApplicationSessionPolicy
+	err := c.request(ctx, "GET", "/api/admin/v1/applications/"+escapeSegment(id)+"/session-policy", url.Values(nil), nil, &out, "admin", []int{200})
+	return out, err
+}
+
+// SaveApplicationSessionPolicy calls PUT /api/admin/v1/applications/{id}/session-policy. Authentication: admin.
+func (c *Client) SaveApplicationSessionPolicy(ctx context.Context, id string, input ApplicationSessionPolicyInput) (ApplicationSessionPolicy, error) {
+	var out ApplicationSessionPolicy
+	err := c.request(ctx, "PUT", "/api/admin/v1/applications/"+escapeSegment(id)+"/session-policy", url.Values(nil), input, &out, "admin", []int{200})
+	return out, err
+}
+
+// RevokeApplicationPolicySessions calls POST /api/admin/v1/applications/{id}/session-policy/revoke. Authentication: admin.
+func (c *Client) RevokeApplicationPolicySessions(ctx context.Context, id string, input RevokeApplicationPolicySessionsInput) (RevokeApplicationPolicySessionsResponse, error) {
+	var out RevokeApplicationPolicySessionsResponse
+	err := c.request(ctx, "POST", "/api/admin/v1/applications/"+escapeSegment(id)+"/session-policy/revoke", url.Values(nil), input, &out, "admin", []int{200})
+	return out, err
+}

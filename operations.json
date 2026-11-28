@@ -1554,5 +1554,54 @@
     "statuses": [
       200
     ]
+  },
+  {
+    "name": "GetApplicationSessionPolicy",
+    "operation": "getApplicationSessionPolicy",
+    "method": "GET",
+    "path": "/api/admin/v1/applications/{id}/session-policy",
+    "request": null,
+    "response": {
+      "$ref": "#/components/schemas/ApplicationSessionPolicy"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "SaveApplicationSessionPolicy",
+    "operation": "saveApplicationSessionPolicy",
+    "method": "PUT",
+    "path": "/api/admin/v1/applications/{id}/session-policy",
+    "request": {
+      "$ref": "#/components/schemas/ApplicationSessionPolicyInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/ApplicationSessionPolicy"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
+  },
+  {
+    "name": "RevokeApplicationPolicySessions",
+    "operation": "revokeApplicationPolicySessions",
+    "method": "POST",
+    "path": "/api/admin/v1/applications/{id}/session-policy/revoke",
+    "request": {
+      "$ref": "#/components/schemas/RevokeApplicationPolicySessionsInput"
+    },
+    "response": {
+      "$ref": "#/components/schemas/RevokeApplicationPolicySessionsResponse"
+    },
+    "query": false,
+    "auth": "admin",
+    "statuses": [
+      200
+    ]
   }
 ]

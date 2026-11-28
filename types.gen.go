@@ -907,6 +907,23 @@ type SessionActivity struct {
 	CSRFToken  string    `json:"csrf_token"`
 }
 
+type ApplicationSessionPolicy struct {
+	AutoRenew       bool      `json:"auto_renew"`
+	IdleSeconds     int64     `json:"idle_seconds"`
+	MaxSeconds      int64     `json:"max_seconds"`
+	RotationSeconds int64     `json:"rotation_seconds"`
+	Version         int64     `json:"version"`
+	UpdatedAt       time.Time `json:"updated_at"`
+}
+
+type ApplicationSessionPolicyInput struct {
+	AutoRenew       bool  `json:"auto_renew"`
+	IdleSeconds     int64 `json:"idle_seconds"`
+	MaxSeconds      int64 `json:"max_seconds"`
+	RotationSeconds int64 `json:"rotation_seconds"`
+	Version         int64 `json:"version"`
+}
+
 type ErrorEnvelope struct {
 	Error struct {
 		Code    string `json:"code"`
@@ -1204,5 +1221,14 @@ type RevokePolicySessionsInput struct {
 }
 
 type RevokePolicySessionsResponse struct {
+	Ok bool `json:"ok"`
+}
+
+type RevokeApplicationPolicySessionsInput struct {
+	Version int64  `json:"version"`
+	Confirm string `json:"confirm"`
+}
+
+type RevokeApplicationPolicySessionsResponse struct {
 	Ok bool `json:"ok"`
 }
